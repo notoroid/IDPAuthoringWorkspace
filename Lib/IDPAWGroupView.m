@@ -1,0 +1,115 @@
+//
+//  GroupView.m
+//  IDPAuthoringWorkspace
+//
+//  Created by 能登 要 on 2014/10/18.
+//  Copyright (c) 2014年 Irimasu Densan Planning. All rights reserved.
+//
+
+#import "IDPAWGroupView.h"
+#import "IDPAWAbstRenderView.h"
+
+@interface IDPAWGroupView ()
+{
+    NSMutableArray *_hittestBezier;
+}
+@end
+
+@implementation IDPAWGroupView
+
+- (BOOL) hittestWithLocation:(CGPoint)location
+{
+    __block BOOL hitTest = NO;
+    
+    if( _hittestBezier == nil ){
+        _hittestBezier = [NSMutableArray array];
+        
+        [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if( obj != self ){
+                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+                const CGRect renderFrame = [self convertRect:renderView.frame fromView:renderView.superview];
+                
+                if( renderView.proxyRender ){
+                    const CGRect renderBounds = renderView.bounds;
+                    
+                    UIBezierPath *bezier = [UIBezierPath bezierPathWithRect:renderBounds];
+                    [bezier applyTransform:renderView.transform];
+                    CGRect bezierBounds = bezier.bounds;
+                    
+                    CGFloat deltaX = -CGRectGetMinX(bezierBounds);
+                    CGFloat deltaY = -CGRectGetMinY(bezierBounds);
+                    
+                    [bezier applyTransform:CGAffineTransformMakeTranslation(renderFrame.origin.x + deltaX , renderFrame.origin.y + deltaY)];
+                    
+                    NSLog(@"bezier.bounds=%@",[NSValue valueWithCGRect:bezier.bounds] );
+                    
+                    _hittestBezier[_hittestBezier.count] = bezier;
+                }
+            }
+        }];
+    }
+    
+    [_hittestBezier enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIBezierPath *bezier = obj;
+        
+        if( [bezier containsPoint:location] ){
+            hitTest = YES;
+            *stop = YES;
+        }
+    }];
+    
+    return hitTest;
+}
+
+//- (void)drawGroupWithFrame: (CGRect)frame;
+//{
+//    //// Color Declarations
+//    UIColor* color = [UIColor colorWithRed: 0.262 green: 0.871 blue: 0.312 alpha: 1];
+//    
+//    //// Rectangle Drawing
+//    UIBezierPath* rectanglePath = [UIBezierPath bezierPathWithRect: CGRectMake(CGRectGetMinX(frame) + 0.5, CGRectGetMinY(frame) + 0.5, CGRectGetWidth(frame) - 1, CGRectGetHeight(frame) - 1)];
+//    [color setStroke];
+//    rectanglePath.lineWidth = 1;
+//    [rectanglePath stroke];
+//}
+
+- (void)drawRect:(CGRect)rect
+{
+    _hittestBezier = nil;
+    
+    [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if( obj != self ){
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( renderView.proxyRender ){
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                CGContextSaveGState(context);
+
+                const CGRect renderFrame = [self convertRect:renderView.frame fromView:renderView.superview];
+                const CGRect renderBounds = renderView.bounds;
+                
+//                if( CGAffineTransformEqualToTransform(renderView.transform, CGAffineTransformIdentity) ){
+//                    CGContextTranslateCTM(context,renderFrame.origin.x, renderFrame.origin.y);
+//                }else{
+                    UIBezierPath *bezier = [UIBezierPath bezierPathWithRect:renderBounds];
+                    [bezier applyTransform:renderView.transform];
+                    CGRect bezierBounds = bezier.bounds;
+                    
+                    CGFloat deltaX = -CGRectGetMinX(bezierBounds);
+                    CGFloat deltaY = -CGRectGetMinY(bezierBounds);
+                    CGContextTranslateCTM(context,renderFrame.origin.x + deltaX , renderFrame.origin.y + deltaY);
+                    
+                    CGAffineTransform transform = renderView.transform;
+                    CGContextConcatCTM(context,transform);
+//                }
+
+                [renderView drawProxyRenderRect:(CGRect){CGPointZero,renderBounds.size}];
+                
+                CGContextRestoreGState(context);
+            }
+        }
+    }];
+    
+//    [self drawGroupWithFrame:rect];
+}
+
+@end
