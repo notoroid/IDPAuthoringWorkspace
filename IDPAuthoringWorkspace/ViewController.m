@@ -24,6 +24,8 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [self constructionAuthoringWorkspace];
+        // 環境の構築
     
     self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(firedAdd:)]
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(firedDelete:)]
