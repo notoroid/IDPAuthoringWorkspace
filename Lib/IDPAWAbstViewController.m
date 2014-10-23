@@ -256,6 +256,27 @@
     return self.view;
 }
 
+/**
+ *  編集スペースの構築
+ */
+- (void) constructionAuthoringWorkspace
+{
+    _groundTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundTap:)];
+    _groundTapGesture.delegate = self;
+    [self.groundView addGestureRecognizer:_groundTapGesture];
+    // Tapジェスチャを追加
+    
+    _groundPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundPan:)];
+    _groundPanGesture.delegate = self;
+    [self.groundView addGestureRecognizer:_groundPanGesture];
+    // Panジェスチャを追加
+    
+    _groundRotateGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundRotate:)];
+    _groundRotateGesture.delegate = self;
+    [self.groundView addGestureRecognizer:_groundRotateGesture];
+    // Rotateジェスチャを追加
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 

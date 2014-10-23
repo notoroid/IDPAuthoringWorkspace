@@ -16,6 +16,8 @@
 - (UIView *) groundView; // view for gound
 
 // Utility method
+- (void) constructionAuthoringWorkspace;
+
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView;
 
 - (void) deleteSelectedObject;
