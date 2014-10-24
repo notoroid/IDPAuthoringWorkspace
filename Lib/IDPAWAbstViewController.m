@@ -1093,6 +1093,8 @@
                             
                             NSLog(@"delta=%@",[NSValue valueWithCGPoint:renderView.center]);
                             
+                            CGRect originalBounds = renderView.bounds;
+                            
                             renderView.bounds = (CGRect){renderView.bounds.origin,CGSizeMake(CGRectGetWidth(renderView.bounds) * ratio,CGRectGetHeight(renderView.bounds) * ratio)};
 
                             {
@@ -1104,8 +1106,8 @@
                             
                                 renderView.transform = oldAffineTransform;
                             }
-
-                            
+                            [renderView resizeSubViewWithBounds:renderView.bounds originalBounds:originalBounds];
+                                // サイズの再構築
                         }
                     }];
                     _originalGroupFrame = self.groupView.frame;

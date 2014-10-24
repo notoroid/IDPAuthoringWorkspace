@@ -55,4 +55,9 @@
     [self drawRenderWithFrame:rect selected:_selected];
 }
 
+- (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds
+{
+        // 空実装
+}
+
 @end

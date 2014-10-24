@@ -13,6 +13,7 @@
 @property(assign,nonatomic) BOOL selected;
 @property(assign,nonatomic) BOOL proxyRender;
 - (void) drawProxyRenderRect:(CGRect)rect;
+- (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
 @end
 
 
