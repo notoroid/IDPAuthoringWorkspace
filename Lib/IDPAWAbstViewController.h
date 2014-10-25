@@ -28,5 +28,7 @@
 
 - (void) selectObjectViews:(NSArray *)objectViews;
 
+- (NSArray *)selectedObjectViews;
+
 @end
 

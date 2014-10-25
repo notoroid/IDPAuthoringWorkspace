@@ -312,6 +312,21 @@
     [/*_editView*/self.groundView addSubview:objectView];
 }
 
+- (NSArray *)selectedObjectViews
+{
+    NSMutableArray *selectedTargets = [NSMutableArray array];
+
+    // 既存の選択状態を無効化
+    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+        if( renderView.selected == YES ){
+            selectedTargets[selectedTargets.count] = renderView;
+        }
+    }];
+    
+    return [NSArray arrayWithArray:selectedTargets];
+}
+
 - (void) deleteSelectedObject
 {
     NSMutableArray *deleteTarget = [NSMutableArray array];
