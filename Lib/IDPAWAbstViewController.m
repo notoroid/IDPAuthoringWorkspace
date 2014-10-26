@@ -28,7 +28,7 @@
     
     UIGestureRecognizer *_groundTapGesture; // Ground用Tapジェスチャ
     UIPanGestureRecognizer *_groundPanGesture; // Ground用Panジェスチャ
-    UIRotationGestureRecognizer*_groundRotateGesture;
+    UIRotationGestureRecognizer *_groundRotateGesture;
  
     UIPanGestureRecognizer *_groupPanGesture;
     
@@ -56,6 +56,11 @@
 @end
 
 @implementation IDPAWAbstViewController
+
+- (UIRotationGestureRecognizer *)rotateGestureRecognizer
+{
+    return _groundRotateGesture;
+}
 
 //- (IBAction)firedCloseDegree:(id)sender
 //{

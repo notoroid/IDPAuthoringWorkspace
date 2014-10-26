@@ -12,6 +12,9 @@
 
 @interface IDPAWAbstViewController : UIViewController
 
+// GestureRecognizer
+@property (readonly,nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
+
 // please override unser methods
 - (UIView *) groundView; // view for gound
 
