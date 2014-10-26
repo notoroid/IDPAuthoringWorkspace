@@ -26,6 +26,8 @@
 - (void) constructionAuthoringWorkspace;
 
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView;
+- (void) insertObjectView:(IDPAWAbstRenderView *) objectView belowSubview:(UIView *)siblingSubview;
+- (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview;
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView; // for objectview recycle
 
 - (void) deleteSelectedObject;

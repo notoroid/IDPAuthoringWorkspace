@@ -302,20 +302,43 @@
     
 }
 
-- (void) addObjectView:(IDPAWAbstRenderView *) objectView
+- (void) addGestureWithView:(UIView *)view
 {
     UIPanGestureRecognizer *panPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectPan:)];
     panPanGestureRecognizer.delegate = self;
-    [objectView addGestureRecognizer:panPanGestureRecognizer];
+    [view addGestureRecognizer:panPanGestureRecognizer];
         // ジェスチャを追加
-
+    
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)];
     tapGestureRecognizer.delegate = self;
-    [objectView addGestureRecognizer:tapGestureRecognizer];
+    [view addGestureRecognizer:tapGestureRecognizer];
         // ジェスチャを追加
+}
 
+- (void) addObjectView:(IDPAWAbstRenderView *) objectView
+{
+    [self addGestureWithView:objectView];
+        // GestureRecognizer を付与
+    
     [self.groundView addSubview:objectView];
 }
+
+- (void) insertObjectView:(IDPAWAbstRenderView *) objectView belowSubview:(UIView *)siblingSubview
+{
+    [self addGestureWithView:objectView];
+        // GestureRecognizer を付与
+    
+    [self.groundView insertSubview:objectView belowSubview:siblingSubview];
+}
+
+- (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview
+{
+    [self addGestureWithView:objectView];
+        // GestureRecognizer を付与
+    
+    [self.groundView insertSubview:objectView aboveSubview:siblingSubview];
+}
+
 
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView
 {
