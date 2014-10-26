@@ -307,21 +307,30 @@
     UIPanGestureRecognizer *panPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectPan:)];
     panPanGestureRecognizer.delegate = self;
     [objectView addGestureRecognizer:panPanGestureRecognizer];
-    // ジェスチャを追加
+        // ジェスチャを追加
 
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)];
     tapGestureRecognizer.delegate = self;
     [objectView addGestureRecognizer:tapGestureRecognizer];
-    // ジェスチャを追加
+        // ジェスチャを追加
 
-    [/*_editView*/self.groundView addSubview:objectView];
+    [self.groundView addSubview:objectView];
+}
+
+- (void) removeObjectView:(IDPAWAbstRenderView *) objectView
+{
+    while (objectView.gestureRecognizers.count) {
+        [objectView removeGestureRecognizer:objectView.gestureRecognizers[0]];
+    }
+    
+    [objectView removeFromSuperview];
 }
 
 - (NSArray *)selectedObjectViews
 {
     NSMutableArray *selectedTargets = [NSMutableArray array];
 
-    // 既存の選択状態を無効化
+    // 選択オブジェクトを抽出する
     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         if( renderView.selected == YES ){
@@ -330,6 +339,20 @@
     }];
     
     return [NSArray arrayWithArray:selectedTargets];
+}
+
+- (NSArray *)objectViews
+{
+    NSMutableArray *objects = [NSMutableArray array];
+    
+    // オブジェクトを抽出する
+    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+        if( renderView != nil ){
+            objects[objects.count] = renderView;
+        }
+    }];
+    return objects;
 }
 
 - (void) deleteSelectedObject
@@ -388,6 +411,26 @@
             [testView removeFromSuperview];
         }
     }];
+    
+    self.groupView.transform = CGAffineTransformIdentity;
+    
+    // サイズを正規化
+    __block CGRect rectGroup = CGRectNull;
+    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+        if (renderView.selected == YES ) {
+            if( CGRectIsNull(rectGroup) ){
+                rectGroup =  renderView.frame;
+            }else{
+                rectGroup =  CGRectUnion(rectGroup,renderView.frame);
+            }
+        }
+    }];
+    
+    self.groupView.frame = _originalGroupFrame = rectGroup;
+    [self.groupView setNeedsDisplay];
+    [self synchronizeTracker];
+    
 }
 
 - (void) clearSelection
@@ -788,24 +831,6 @@
             [self rotateSelectedObjectWithRotation:rotationGestureRecognizer.rotation];
                 // 回転を適用
             
-            self.groupView.transform = CGAffineTransformIdentity;
-            
-            // サイズを正規化
-            __block CGRect rectGroup = CGRectNull;
-            [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                if (renderView.selected == YES ) {
-                    if( CGRectIsNull(rectGroup) ){
-                        rectGroup =  renderView.frame;
-                    }else{
-                        rectGroup =  CGRectUnion(rectGroup,renderView.frame);
-                    }
-                }
-            }];
-            
-            self.groupView.frame = _originalGroupFrame = rectGroup;
-            [self.groupView setNeedsDisplay];
-            [self synchronizeTracker];
             
 //            [self.degreeInputView removeFromSuperview];
         }

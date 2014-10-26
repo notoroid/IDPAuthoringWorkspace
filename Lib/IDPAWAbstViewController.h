@@ -15,6 +15,10 @@
 // GestureRecognizer
 @property (readonly,nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
+// object collection
+@property (readonly,nonatomic) NSArray *selectedObjectViews;
+@property (readonly,nonatomic) NSArray *objectViews;
+
 // please override unser methods
 - (UIView *) groundView; // view for gound
 
@@ -22,6 +26,7 @@
 - (void) constructionAuthoringWorkspace;
 
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView;
+- (void) removeObjectView:(IDPAWAbstRenderView *) objectView; // for objectview recycle
 
 - (void) deleteSelectedObject;
 
@@ -30,8 +35,6 @@
 - (void) clearSelection;
 
 - (void) selectObjectViews:(NSArray *)objectViews;
-
-- (NSArray *)selectedObjectViews;
 
 @end
 
