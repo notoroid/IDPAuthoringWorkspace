@@ -1021,13 +1021,14 @@
                     if( renderView.selected == YES && targetView != renderView){
                         renderView.center = CGPointMake(renderView.center.x - deltaPoint.x, renderView.center.y - deltaPoint.y);
                     }
-                    
-                    IDPAWGroupView *groupView = [obj isKindOfClass:[IDPAWGroupView class]] ? obj : nil;
-                    groupView.center = CGPointMake(groupView.center.x - deltaPoint.x, groupView.center.y - deltaPoint.y);
-                    _originalGroupFrame = self.groupView.frame;
-                    
-                    [self synchronizeTracker];
                 }];
+                
+                self.groupView.center = CGPointMake(self.groupView.center.x - deltaPoint.x, self.groupView.center.y - deltaPoint.y);
+                _originalGroupFrame = self.groupView.frame;
+                
+                [self synchronizeTracker];
+                
+                
             }else if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
 
             }
