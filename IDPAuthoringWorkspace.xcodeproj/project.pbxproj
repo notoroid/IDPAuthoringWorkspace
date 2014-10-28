@@ -21,6 +21,7 @@
 		878D123A19F8D18A00575B94 /* IDPAWGroupView.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D123319F8D18A00575B94 /* IDPAWGroupView.m */; };
 		878D123B19F8D18A00575B94 /* IDPAWTrackerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D123519F8D18A00575B94 /* IDPAWTrackerView.m */; };
 		878D123E19F8D1D900575B94 /* EditObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D123D19F8D1D900575B94 /* EditObjectView.m */; };
+		87BC0EFE19FF527500C7EB2A /* EditGroupView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87BC0EFD19FF527500C7EB2A /* EditGroupView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,8 @@
 		878D123519F8D18A00575B94 /* IDPAWTrackerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWTrackerView.m; sourceTree = "<group>"; };
 		878D123C19F8D1D900575B94 /* EditObjectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditObjectView.h; sourceTree = "<group>"; };
 		878D123D19F8D1D900575B94 /* EditObjectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditObjectView.m; sourceTree = "<group>"; };
+		87BC0EFC19FF527500C7EB2A /* EditGroupView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditGroupView.h; sourceTree = "<group>"; };
+		87BC0EFD19FF527500C7EB2A /* EditGroupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditGroupView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +110,8 @@
 				878D120819F8D12A00575B94 /* AppDelegate.m */,
 				878D120A19F8D12A00575B94 /* ViewController.h */,
 				878D120B19F8D12A00575B94 /* ViewController.m */,
+				87BC0EFC19FF527500C7EB2A /* EditGroupView.h */,
+				87BC0EFD19FF527500C7EB2A /* EditGroupView.m */,
 				878D123C19F8D1D900575B94 /* EditObjectView.h */,
 				878D123D19F8D1D900575B94 /* EditObjectView.m */,
 				878D120D19F8D12A00575B94 /* Main.storyboard */,
@@ -264,6 +269,7 @@
 			files = (
 				878D123A19F8D18A00575B94 /* IDPAWGroupView.m in Sources */,
 				878D123E19F8D1D900575B94 /* EditObjectView.m in Sources */,
+				87BC0EFE19FF527500C7EB2A /* EditGroupView.m in Sources */,
 				878D120C19F8D12A00575B94 /* ViewController.m in Sources */,
 				878D120919F8D12A00575B94 /* AppDelegate.m in Sources */,
 				878D123919F8D18A00575B94 /* IDPAWGroupFrameView.m in Sources */,

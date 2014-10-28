@@ -39,6 +39,8 @@
     NSArray *_trackers; // Tracker用配列
     IDPAWTrackerView *_dummyTrackerView; // ダミートラッカー用View
     
+    CGPoint _originalGroupCenter;
+    
     CGRect _originalGroupFrame; // グループサイズ変更時のオリジナルサイズ
     
 //    IBOutlet DegreeInputView *_degreeInputView;
@@ -925,18 +927,22 @@
                 targetView.transform = oldAffineTransform;
             }
             
+            if( panGestureRecognizer.state == UIGestureRecognizerStateBegan ){
+                _originalGroupCenter = targetView.center;
+            }
+            
+            
             CGPoint movedPoint = CGPointMake(targetView.center.x + p.x, targetView.center.y + p.y);
             // 移動距離を計算
             
-            CGPoint deltaPoint = CGPointMake(targetView.center.x - movedPoint.x,targetView.center.y - movedPoint.y);
             targetView.center = movedPoint;
             [panGestureRecognizer setTranslation:CGPointZero inView:targetView];
-            // ジェスチャをリセット
+                // ジェスチャをリセット
             
-//            GroupView *groupView = [targetView isKindOfClass:[GroupView class]] ? (GroupView *)targetView : nil;
-            
-            // ドラッグ呼び出し
-            if( panGestureRecognizer.state == UIGestureRecognizerStateChanged || panGestureRecognizer.state == UIGestureRecognizerStateEnded){
+            // 終了後に要素に位置変更を適用
+            if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
+                CGPoint deltaPoint = CGPointMake( _originalGroupCenter.x - targetView.center.x,_originalGroupCenter.y - targetView.center.y);
+                
                 [targetView.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
                     if( renderView.selected == YES && targetView != renderView){
@@ -944,11 +950,11 @@
                     }
                     
                     _originalGroupFrame = self.groupView.frame;
-                    [self synchronizeTracker];
                 }];
-            }else if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
-                
             }
+            
+            [self synchronizeTracker];
+            
         }
             break;
         case UIGestureRecognizerStateFailed:
