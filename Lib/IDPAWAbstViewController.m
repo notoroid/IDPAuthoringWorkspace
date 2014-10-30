@@ -47,7 +47,6 @@
 //    IBOutlet UISlider *_sliderView;
 }
 @property(readonly,nonatomic) IDPAWBandView *bandView;
-@property(readonly,nonatomic) IDPAWGroupView *groupView;
 @property(readonly,nonatomic) IDPAWGroupFrameView *groupFrameView;
 @property(readonly,nonatomic) NSArray *trackers;
 @property(readonly,nonatomic) IDPAWTrackerView *dummyTrackerView;
@@ -1213,8 +1212,6 @@
         default:
             break;
     }
-    
 }
-
 
 @end

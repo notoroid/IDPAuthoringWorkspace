@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class IDPAWAbstRenderView;
+@class IDPAWGroupView;
 
 @interface IDPAWAbstViewController : UIViewController
 
@@ -37,6 +38,8 @@
 - (void) clearSelection;
 
 - (void) selectObjectViews:(NSArray *)objectViews;
+
+@property(readonly,nonatomic) IDPAWGroupView *groupView;
 
 @end
 
