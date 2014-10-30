@@ -901,10 +901,12 @@
     }else{
         //　グループを選択したオブジェクトに同期
         self.groupView.frame = _originalGroupFrame = renderView.frame;
-        [self.groupView setNeedsDisplay];
         [self.groundView addSubview:self.groupView];
-        [self synchronizeTracker];
-    }
+        [self.groupView setNeedsDisplay];
+            // グループの描画を更新する
+        [self.groupFrameView setNeedsDisplay];
+            // グレープフレームの描画を更新する
+        [self synchronizeTracker];    }
     
 }
 
