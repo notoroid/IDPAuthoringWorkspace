@@ -798,7 +798,7 @@ static NSInteger s_hierarchyTag = 0;
         continued = [groupView hittestWithLocation:location];
     }
     
-    if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] ){
+    if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && ( [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] || [gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] ) ){
         IDPAWAbstRenderView *renderView = (IDPAWAbstRenderView *)gestureRecognizer.view;
         CGPoint location = [gestureRecognizer locationInView:renderView.superview];
         continued = [renderView hittestWithLocation:location];
