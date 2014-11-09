@@ -798,6 +798,12 @@ static NSInteger s_hierarchyTag = 0;
         continued = [groupView hittestWithLocation:location];
     }
     
+    if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] ){
+        IDPAWAbstRenderView *renderView = (IDPAWAbstRenderView *)gestureRecognizer.view;
+        CGPoint location = [gestureRecognizer locationInView:renderView.superview];
+        continued = [renderView hittestWithLocation:location];
+    }
+    
 //    if( _groundTapGesture == gestureRecognizer ){
 //        CGPoint location = [touch locationInView:self.groundView];
 //        
@@ -942,7 +948,7 @@ static NSInteger s_hierarchyTag = 0;
                 
                 if (renderView != nil ) {
                     // 矩形衝突が認められた場合
-                    if( CGRectIntersectsRect(testRect, renderView.frame) ){
+                    if( [renderView hittestWithRect:testRect] ){
                         renderView.selected = YES;
                         [renderView setNeedsDisplay];
                         

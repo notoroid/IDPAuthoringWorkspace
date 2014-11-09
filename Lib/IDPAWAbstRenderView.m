@@ -60,4 +60,16 @@
         // 空実装
 }
 
+- (BOOL) hittestWithRect:(CGRect)rect
+{
+    BOOL hittest = CGRectIntersectsRect(self.frame, rect);
+    return hittest;
+}
+
+- (BOOL) hittestWithLocation:(CGPoint)location
+{
+    BOOL hittest = CGRectContainsPoint(self.frame,location);
+    return hittest;
+}
+
 @end

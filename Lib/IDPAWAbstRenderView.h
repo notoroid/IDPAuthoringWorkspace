@@ -16,6 +16,8 @@
 @property(assign,nonatomic) NSInteger hierarchyTag;
 - (void) drawProxyRenderRect:(CGRect)rect;
 - (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
+- (BOOL) hittestWithRect:(CGRect)rect;
+- (BOOL) hittestWithLocation:(CGPoint)location;
 @end
 
 
