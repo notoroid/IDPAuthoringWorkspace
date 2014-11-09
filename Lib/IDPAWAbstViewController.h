@@ -11,6 +11,13 @@
 @class IDPAWAbstRenderView;
 @class IDPAWGroupView;
 
+typedef BOOL (^idp_hierarchy_compare_block_t)(IDPAWAbstRenderView *objectView);
+
+typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
+{
+    IDPAWAbstViewControllerEditModeHierarchy // 階層をpush
+};
+
 @interface IDPAWAbstViewController : UIViewController
 
 // GestureRecognizer
@@ -31,15 +38,23 @@
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview;
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView; // for objectview recycle
 
+// removeObject
 - (void) deleteSelectedObject;
 
+// rotate object
 - (void) rotateSelectedObjectWithRotation:(CGFloat)rotation;
 
+// clear selection
 - (void) clearSelection;
 
+// select object
 - (void) selectObjectViews:(NSArray *)objectViews;
 
 @property(readonly,nonatomic) IDPAWGroupView *groupView;
+
+- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare;
+- (void) popEditMode;
+
 
 @end
 

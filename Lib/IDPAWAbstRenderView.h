@@ -12,6 +12,8 @@
 
 @property(assign,nonatomic) BOOL selected;
 @property(assign,nonatomic) BOOL proxyRender;
+@property(assign,nonatomic) NSInteger parentHierarchyTag;
+@property(assign,nonatomic) NSInteger hierarchyTag;
 - (void) drawProxyRenderRect:(CGRect)rect;
 - (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
 @end

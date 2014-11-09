@@ -22,6 +22,28 @@
 //static double radiansToDegrees(double radians);
 //static double radiansToDegrees(double radians) {return radians * 180 / M_PI;}
 
+static NSInteger s_hierarchyTag = 0;
+
+@interface IDPAWEditModeObject : NSObject
+@property (nonatomic) IDPAWAbstViewControllerEditMode editMode;
+@property (nonatomic) NSMutableDictionary *viewsByHierarchyTag;
+@property (copy,nonatomic) idp_hierarchy_compare_block_t compare;
+- (instancetype) initWithEditMode:(IDPAWAbstViewControllerEditMode)editMode;
+@end
+
+@implementation IDPAWEditModeObject
+- (instancetype) initWithEditMode:(IDPAWAbstViewControllerEditMode)editMode
+{
+    self = [super init];
+    if( self != nil ){
+        _editMode = editMode;
+        _viewsByHierarchyTag = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+@end
+
+
 @interface IDPAWAbstViewController () <UIGestureRecognizerDelegate>
 {
     BOOL _initialized;
@@ -40,11 +62,9 @@
     IDPAWTrackerView *_dummyTrackerView; // ダミートラッカー用View
     
     CGPoint _originalGroupCenter;
-    
     CGRect _originalGroupFrame; // グループサイズ変更時のオリジナルサイズ
     
-//    IBOutlet DegreeInputView *_degreeInputView;
-//    IBOutlet UISlider *_sliderView;
+    NSMutableArray *_hierarchies;
 }
 @property(readonly,nonatomic) IDPAWBandView *bandView;
 @property(readonly,nonatomic) IDPAWGroupFrameView *groupFrameView;
@@ -54,6 +74,7 @@
 @property(readonly,nonatomic) UIPanGestureRecognizer *objectPanGestureRecognizer;
 @property(readonly,nonatomic) UITapGestureRecognizer *objectTapGestureRecognizer;
 //@property(readonly,nonatomic) DegreeInputView *degreeInputView;
+@property(readonly,nonatomic) NSMutableArray *hierarchies;
 @end
 
 @implementation IDPAWAbstViewController
@@ -61,6 +82,14 @@
 - (UIRotationGestureRecognizer *)rotateGestureRecognizer
 {
     return _groundRotateGesture;
+}
+
+- (NSMutableArray *)hierarchies
+{
+    if( _hierarchies == nil ){
+        _hierarchies = [NSMutableArray array];
+    }
+    return _hierarchies;
 }
 
 //- (IBAction)firedCloseDegree:(id)sender
@@ -540,12 +569,166 @@
             }
         }];
     }
-
-    
     
 }
 
+- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare
+{
+    switch (editMode) {
+        case IDPAWAbstViewControllerEditModeHierarchy:
+        {
+            IDPAWEditModeObject *editModeObject = [[IDPAWEditModeObject alloc] initWithEditMode:editMode];
+            editModeObject.compare = compare;
+                // 比較オブジェクトを複製
+            self.hierarchies[self.hierarchies.count] = editModeObject;
+                // 階層を追加
+            
+            NSMutableArray *selecteObjectViews = [NSMutableArray array];
 
+            NSArray *objectViews = self.objectViews;
+            [objectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+                if( renderView != nil ){
+                    s_hierarchyTag++;
+                        // タグを発行
+                    
+                    renderView.parentHierarchyTag = s_hierarchyTag;
+                        // タグを関連づけ
+                    
+                    NSArray *subViews = [renderView.subviews copy];
+                    [subViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        IDPAWAbstRenderView *renderSubView = compare(obj) ? obj : nil;
+                        
+                        if( renderSubView != nil ){
+                            renderSubView.hierarchyTag = s_hierarchyTag;
+                            
+                            CGPoint center = [self.groundView convertPoint:renderSubView.center fromView:renderView];
+                            
+                            [renderSubView removeFromSuperview];
+                            renderSubView.center = center;
+                            
+                            [self addObjectView:renderSubView];
+                            
+                            if( renderView.selected ){
+                                selecteObjectViews[selecteObjectViews.count] = renderSubView;
+                            }
+                            
+                            renderSubView.proxyRender = NO;
+                            [renderSubView setNeedsDisplay];
+                        }
+                    }];
+                    
+                    [self removeObjectView:renderView];
+                    editModeObject.viewsByHierarchyTag[@(s_hierarchyTag)] = renderView;
+                }
+            }];
+            
+            [self selectObjectViews:selecteObjectViews];
+                // 選択状態を更新
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+- (void) popEditMode
+{
+    IDPAWEditModeObject *editModeObject = [self.hierarchies lastObject];
+        // 最後の階層を取得
+    [self.hierarchies removeObject:[self.hierarchies lastObject]];
+        // 階層から削除
+
+    switch (editModeObject.editMode) {
+        case IDPAWAbstViewControllerEditModeHierarchy:
+        {
+            NSArray *objectViews = self.objectViews;
+            
+            NSMutableDictionary *dictObjectViews = [NSMutableDictionary dictionary];
+                // hierarchyTagをキー値としてコレクションを作成
+            
+            
+            idp_hierarchy_compare_block_t compare = editModeObject.compare;
+            editModeObject.compare = nil;
+                // 比較オブジェクトを解放
+            
+            
+            [objectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                
+                IDPAWAbstRenderView *renderSubView = compare(obj) ? obj : nil;
+                
+                if( renderSubView != nil ){
+                    NSMutableArray *targetObjectViews = dictObjectViews[@(renderSubView.hierarchyTag)];
+                    // hierarchyTagに合致した
+                    if( targetObjectViews == nil ){
+                        targetObjectViews = [NSMutableArray array];
+                        dictObjectViews[@(renderSubView.hierarchyTag)] = targetObjectViews;
+                        // コレクションに追加
+                    }
+                    targetObjectViews[targetObjectViews.count] = renderSubView;
+                }
+            }];
+            
+            NSMutableSet *setSelectedViews = [NSMutableSet set];
+            // 選択済みviewを集めるコレクションを作成
+            
+            [editModeObject.viewsByHierarchyTag enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                IDPAWAbstRenderView* renderView = obj;
+                
+                NSMutableArray *targetObjectViews = dictObjectViews[@(renderView.parentHierarchyTag)];
+                if( targetObjectViews.count ){
+                    
+                    // viewの矩形を再計算
+                    __block CGRect rectFrame = CGRectNull;
+                    [targetObjectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        IDPAWAbstRenderView *renderSubView = obj;
+                        if( CGRectIsNull(rectFrame) ){
+                            rectFrame = renderSubView.frame;
+                        }else{
+                            rectFrame = CGRectUnion(rectFrame, renderSubView.frame);
+                        }
+                    }];
+                    renderView.frame = rectFrame;
+                    
+                    [self insertObjectView:renderView belowSubview:targetObjectViews[0]];
+                    // オブジェクトを追加
+                    
+                    [targetObjectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        IDPAWAbstRenderView *renderSubView = obj;
+                        
+                        CGPoint center = [self.groundView convertPoint:renderSubView.center toView:renderView];
+                        
+                        // renderSubViewを一時作成
+                        [self removeObjectView:renderSubView];
+                        renderSubView.center = center;
+                        
+                        [renderView addSubview:renderSubView];
+                        // renderSubVieを移動
+                        
+                        if (renderSubView.selected) {
+                            if( [setSelectedViews containsObject:renderView] != YES ){
+                                [setSelectedViews addObject:renderView];
+                            }
+                        }
+                        renderSubView.selected = NO;
+                        
+                        renderSubView.proxyRender = NO;
+                        [renderSubView setNeedsDisplay];
+                        // 再描画を指定
+                    }];
+                }
+            }];
+            
+            [self selectObjectViews:setSelectedViews.allObjects];
+                // 選択状態を更新
+
+        }
+            break;
+        default:
+            break;
+    }
+    
+}
 
 //- (void) viewWillLayoutSubviews
 //{
@@ -558,7 +741,7 @@
 //        NSArray *centers = @[  [NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame),CGRectGetMidY(self.groundView.frame))]
 //                             ,[NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame) + 20.0f ,CGRectGetMidY(self.groundView.frame) + 20.0f)]
 //                             ];
-//        
+//
 //        NSArray *bounds = @[ [NSValue valueWithCGRect:CGRectMake(0, 0, 120, 80)]
 //                            ,[NSValue valueWithCGRect:CGRectMake(0, 0, 120, 80)]
 //                            ];
