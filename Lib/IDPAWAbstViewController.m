@@ -15,6 +15,8 @@
 #import "IDPAWGroupFrameView.h"
 //#import "DegreeInputView.h"
 @import QuartzCore;
+#import "IDPAWAddCommand.h"
+#import "IDPAWDeleteCommand.h"
 
 //static double degreesToRadians(double degrees);
 //static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
@@ -66,6 +68,8 @@ static NSInteger s_hierarchyTag = 0;
     CGRect _originalGroupFrame; // グループサイズ変更時のオリジナルサイズ
     
     NSMutableArray *_hierarchies;
+    
+    NSMutableArray *_commands;
 }
 @property(readonly,nonatomic) IDPAWBandView *bandView;
 @property(readonly,nonatomic) IDPAWGroupFrameView *groupFrameView;
@@ -76,6 +80,7 @@ static NSInteger s_hierarchyTag = 0;
 @property(readonly,nonatomic) UITapGestureRecognizer *objectTapGestureRecognizer;
 //@property(readonly,nonatomic) DegreeInputView *degreeInputView;
 @property(readonly,nonatomic) NSMutableArray *hierarchies;
+@property (readonly,nonatomic) NSMutableArray *commands;
 @end
 
 @implementation IDPAWAbstViewController
@@ -93,6 +98,15 @@ static NSInteger s_hierarchyTag = 0;
     return _hierarchies;
 }
 
+- (NSMutableArray *)commands
+{
+    if( _commands == nil ){
+#warning command disabled
+//        _commands = [NSMutableArray array];
+    }
+    return _commands;
+}
+   
 //- (IBAction)firedCloseDegree:(id)sender
 //{
 //    self.groupView.transform = CGAffineTransformMakeRotation(degreesToRadians(_sliderView.value) );
@@ -347,12 +361,38 @@ static NSInteger s_hierarchyTag = 0;
         // ジェスチャを追加
 }
 
+- (IDPAWCommandPrepareBlock) commandBlock
+{
+    __weak IDPAWAbstViewController *weakSelf = self;
+    
+    IDPAWCommandPrepareBlock block = ^(IDPAWAbstCommand *command, IDPAWAbstRenderView *objectView) {
+        if( [command isKindOfClass:[IDPAWAddCommand class]] ){
+            [weakSelf addGestureWithView:objectView];
+                // GestureRecognizer を付与
+        }else if( [command isKindOfClass:[IDPAWDeleteCommand class]] ){
+            // GestureRecognizer を削除
+            while (objectView.gestureRecognizers.count) {
+                [objectView removeGestureRecognizer:objectView.gestureRecognizers[0]];
+            }
+            
+            // グループを除外
+            [self.groupView removeFromSuperview];
+            [self synchronizeTracker];
+                // グループに合わせてトラッカーを無効化
+        }
+    };
+    return block;
+}
+
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView
 {
     [self addGestureWithView:objectView];
         // GestureRecognizer を付与
     
     [self.groundView addSubview:objectView];
+    
+    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
+        // commandを追加
 }
 
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView belowSubview:(UIView *)siblingSubview
@@ -361,6 +401,9 @@ static NSInteger s_hierarchyTag = 0;
         // GestureRecognizer を付与
     
     [self.groundView insertSubview:objectView belowSubview:siblingSubview];
+    
+    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
+        // commandを追加
 }
 
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview
@@ -369,11 +412,17 @@ static NSInteger s_hierarchyTag = 0;
         // GestureRecognizer を付与
     
     [self.groundView insertSubview:objectView aboveSubview:siblingSubview];
+    
+    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
+        // commandを追加
 }
 
 
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView
 {
+    [self pushCommand:[IDPAWAddCommand addCommandWithView:objectView block:[self commandBlock]]];
+        // commandを追加
+    
     while (objectView.gestureRecognizers.count) {
         [objectView removeGestureRecognizer:objectView.gestureRecognizers[0]];
     }
@@ -419,12 +468,16 @@ static NSInteger s_hierarchyTag = 0;
         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         if( renderView.selected == YES ){
             renderView.selected = NO;
+            
+            renderView.proxyRender = NO;
+                // proxyRenderを無効にする
+            
             deleteTarget[deleteTarget.count] = renderView;
         }
     }];
     
     [deleteTarget enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [obj removeFromSuperview];
+        [self removeObjectView:obj];
     }];
     
     
@@ -731,6 +784,20 @@ static NSInteger s_hierarchyTag = 0;
     }
     
 }
+
+- (void) pushCommand:(IDPAWAbstCommand *)command
+{
+    [self.commands addObject:command];
+}
+
+- (void) popCommand
+{
+    IDPAWAbstCommand *command = [self.commands lastObject];
+    [self.commands removeObject:self.commands.lastObject];
+    
+    [command execute];
+}
+
 
 //- (void) viewWillLayoutSubviews
 //{

@@ -29,6 +29,9 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     
     self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(firedAdd:)]
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(firedDelete:)]
+#warning UNDO disabled 
+//                           ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(firedUndo:)]
+                           
                            ];
     self.navigationController.toolbarHidden = NO;
 }
@@ -53,6 +56,11 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
 - (void)firedDelete:(id)sender
 {
     [self deleteSelectedObject];
+}
+
+- (void)firedUndo:(id)sender
+{
+    [self popCommand];
 }
 
 - (void)didReceiveMemoryWarning {

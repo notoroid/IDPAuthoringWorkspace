@@ -10,6 +10,7 @@
 
 @class IDPAWAbstRenderView;
 @class IDPAWGroupView;
+@class IDPAWAbstCommand;
 
 typedef BOOL (^idp_hierarchy_compare_block_t)(IDPAWAbstRenderView *objectView);
 
@@ -55,6 +56,8 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
 - (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare;
 - (void) popEditMode;
 
+- (void) pushCommand:(IDPAWAbstCommand *)command;
+- (void) popCommand;
 
 @end
 
