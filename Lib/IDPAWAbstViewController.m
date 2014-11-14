@@ -60,6 +60,7 @@ static NSInteger s_hierarchyTag = 0;
     IDPAWGroupView *_groupView; // グループ状態表示用View
     NSArray *_trackers; // Tracker用配列
     IDPAWTrackerView *_dummyTrackerView; // ダミートラッカー用View
+    CGRect _safetyBounds;
     
     CGPoint _originalGroupCenter;
     CGRect _originalGroupFrame; // グループサイズ変更時のオリジナルサイズ
@@ -251,7 +252,8 @@ static NSInteger s_hierarchyTag = 0;
     if( _trackers == nil ){
         NSMutableArray *trackers = [NSMutableArray array];
         for( NSInteger i = 0;i < 4;i++){
-            IDPAWTrackerView *trackerView= [[IDPAWTrackerView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(23.0,23.0)}];
+#define IDPAW_TRACKER_EDGE 23.0
+            IDPAWTrackerView *trackerView= [[IDPAWTrackerView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(IDPAW_TRACKER_EDGE,IDPAW_TRACKER_EDGE)}];
             trackerView.backgroundColor = [UIColor clearColor];
             trackerView.opaque = NO;
             trackerView.userInteractionEnabled = YES;
@@ -1244,6 +1246,7 @@ static NSInteger s_hierarchyTag = 0;
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged:
         case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
         {
             UIView *targetView = panGestureRecognizer.view;
             
@@ -1255,7 +1258,7 @@ static NSInteger s_hierarchyTag = 0;
             [panGestureRecognizer setTranslation:CGPointZero inView:targetView];
                 // トラッカーの位置を変更
             
-            if( panGestureRecognizer.state == UIGestureRecognizerStateChanged || panGestureRecognizer.state == UIGestureRecognizerStateEnded){
+            if( panGestureRecognizer.state == UIGestureRecognizerStateBegan || panGestureRecognizer.state == UIGestureRecognizerStateChanged || panGestureRecognizer.state == UIGestureRecognizerStateEnded){
                 NSInteger index = [self.trackers indexOfObject:targetView];
                 NSInteger diagonalIndex = (index + 2) % 4; // 対角線上の位置を取得
 
@@ -1295,6 +1298,31 @@ static NSInteger s_hierarchyTag = 0;
                         break;
                 }
                 
+                if( panGestureRecognizer.state == UIGestureRecognizerStateBegan ){
+                    _safetyBounds = bounds;
+                        // 安全サイズを保存
+                }else if( panGestureRecognizer.state == UIGestureRecognizerStateChanged ){
+                    // 最小サイズまで小さくした場合はキャンセルする
+                    const CGFloat offset = (IDPAW_TRACKER_EDGE-1.0) * 0.5;
+                    
+                    const CGRect trackerFrameLeftTop = CGRectMake(CGRectGetMinX(normalizedRect) - offset,CGRectGetMinY(normalizedRect) - offset, IDPAW_TRACKER_EDGE, IDPAW_TRACKER_EDGE);
+                    
+                    const CGRect trackerFrameRightBottom = CGRectMake(CGRectGetMaxX(normalizedRect) - offset,CGRectGetMaxY(normalizedRect) - offset, IDPAW_TRACKER_EDGE, IDPAW_TRACKER_EDGE);
+                    
+                    if( CGRectIntersectsRect(trackerFrameLeftTop, trackerFrameRightBottom) ){
+                        panGestureRecognizer.enabled = NO;
+                        panGestureRecognizer.enabled = YES;
+                        
+                        bounds = _safetyBounds;
+                            // 安全サイズから戻す
+                    }else{
+                        _safetyBounds = bounds;
+                        // 安全サイズを保存
+                    }
+                }
+                
+                
+                
                 // トラッキングポイントのサイズを変更
                 self.groupView.frame = bounds;
                 [self.groupFrameView setNeedsDisplay];
@@ -1327,9 +1355,9 @@ static NSInteger s_hierarchyTag = 0;
                 [targetView != self.trackers[2] ? self.trackers[2] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
                 
                 [targetView != self.trackers[3] ? self.trackers[3] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
-             
+
                 // 終了後にDummtTrackerをTrackerに置き換える
-                if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
+                if( panGestureRecognizer.state == UIGestureRecognizerStateEnded || panGestureRecognizer.state == UIGestureRecognizerStateCancelled){
                     
                     CGFloat ratio = CGRectGetWidth(self.groupView.frame) / CGRectGetWidth(_originalGroupFrame);
                         // 比率を計算
@@ -1396,7 +1424,7 @@ static NSInteger s_hierarchyTag = 0;
         }
             break;
         case UIGestureRecognizerStateFailed:
-        case UIGestureRecognizerStateCancelled:
+            
             break;
         default:
             break;
