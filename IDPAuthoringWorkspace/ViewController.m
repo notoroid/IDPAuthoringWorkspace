@@ -29,8 +29,8 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     
     self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(firedAdd:)]
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(firedDelete:)]
-#warning UNDO disabled 
-//                           ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(firedUndo:)]
+//#warning UNDO disabled
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(firedUndo:)]
                            
                            ];
     self.navigationController.toolbarHidden = NO;
@@ -106,8 +106,13 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
             editObjectView.transform = CGAffineTransformMakeRotation(degreesToRadians(0.0f) );
             
             [self addObjectView:editObjectView];
-            // オブジェクトを追加
+                // オブジェクトを追加
         }];
+        
+        while ([self commandNumber] > 0) {
+            [self popFrontCommand];
+        }
+        
     }
 }
 

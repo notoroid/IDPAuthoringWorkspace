@@ -101,8 +101,8 @@ static NSInteger s_hierarchyTag = 0;
 - (NSMutableArray *)commands
 {
     if( _commands == nil ){
-#warning command disabled
-//        _commands = [NSMutableArray array];
+//#warning command disabled
+        _commands = [NSMutableArray array];
     }
     return _commands;
 }
@@ -798,6 +798,17 @@ static NSInteger s_hierarchyTag = 0;
     [command execute];
 }
 
+- (NSInteger) commandNumber
+{
+    return self.commands.count;
+}
+
+- (void) popFrontCommand
+{
+    if( self.commands.count > 0){
+        [self.commands removeObject:self.commands.firstObject];
+    }
+}
 
 //- (void) viewWillLayoutSubviews
 //{

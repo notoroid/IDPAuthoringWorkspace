@@ -58,6 +58,8 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
 
 - (void) pushCommand:(IDPAWAbstCommand *)command;
 - (void) popCommand;
+- (NSInteger) commandNumber;
+- (void) popFrontCommand;
 
 @end
 
