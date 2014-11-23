@@ -19,6 +19,7 @@
 #import "IDPAWDeleteCommand.h"
 #import "IDPAWMoveCommand.h"
 #import "IDPAWGroupedCommand.h"
+#import "IDPAWResizeCommand.h"
 
 //static double degreesToRadians(double degrees);
 //static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
@@ -392,6 +393,13 @@ static NSInteger s_hierarchyTag = 0;
             // 衝突判定
             [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return movedObjectView == objectView ? YES : NO;
+            }];
+        }else if( [command isKindOfClass:[IDPAWResizeCommand class]] ){
+            IDPAWAbstRenderView *resizedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
+            
+            // 衝突判定
+            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                return resizedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWGroupedCommand class]] ){
  
@@ -1494,10 +1502,19 @@ static NSInteger s_hierarchyTag = 0;
 //                    CGPoint offset = CGPointMake(  CGRectGetMinX(_originalGroupFrame) - CGRectGetMinX(self.groupView.frame)
 //                                                 , CGRectGetMinY(_originalGroupFrame) - CGRectGetMinY(self.groupView.frame) );
                     
+                    NSMutableArray *commands = [NSMutableArray array];
+                    NSMutableArray *objectViews = [NSMutableArray array];
+                    
                     // 選択状態のオブジェクトの位置を把握
                     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
                         if( renderView.selected == YES ){
+
+                            commands[commands.count] = [IDPAWResizeCommand resizeCommandWithView:renderView location:renderView.center size:renderView.bounds.size block:nil];
+                                // commandを作成
+                            objectViews[objectViews.count] = renderView;
+                            
+                            
                             CGPoint delta = CGPointZero;
                             {
                                 CGAffineTransform oldAffineTransform = renderView.transform;
@@ -1529,6 +1546,10 @@ static NSInteger s_hierarchyTag = 0;
                                 // サイズの再構築
                         }
                     }];
+                    
+                    [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:commands objectViews:objectViews block:[self commandBlock]]];
+                        // コマンド追加
+                    
                     _originalGroupFrame = self.groupView.frame;
                     [self.groupView setNeedsDisplay];
                     
