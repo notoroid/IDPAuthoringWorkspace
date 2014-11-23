@@ -415,7 +415,7 @@ static NSInteger s_hierarchyTag = 0;
     return block;
 }
              
-- (void)customPrepareCommand:(IDPAWAbstCommand *)command objectViews:(NSArray *)objectViews
+- (void)customCommandPrepare:(IDPAWAbstCommand *)command objectViews:(NSArray *)objectViews
 {
 
 }
