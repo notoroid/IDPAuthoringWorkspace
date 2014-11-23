@@ -6,11 +6,11 @@
 //  Copyright (c) 2014年 Irimasu Densan Planning. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @class IDPAWAbstRenderView;
 @class IDPAWAbstCommand;
-typedef void (^IDPAWCommandPrepareBlock)(IDPAWAbstCommand *command,IDPAWAbstRenderView *objectView);
+typedef void (^IDPAWCommandPrepareBlock)(IDPAWAbstCommand *command,NSArray *objectViews);
 
 @interface IDPAWAbstCommand : NSObject
 

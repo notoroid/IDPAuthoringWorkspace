@@ -26,6 +26,7 @@
 		87C464C21A1580EF008C8DCD /* IDPAWDeleteCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464C11A1580EF008C8DCD /* IDPAWDeleteCommand.m */; };
 		87C464C51A15812A008C8DCD /* IDPAWAddCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */; };
 		87C464CB1A158E67008C8DCD /* IDPAWGroupedCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */; };
+		87DFDA901A21C83C00BEF8C6 /* IDPAWMoveCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,8 @@
 		87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWAddCommand.m; sourceTree = "<group>"; };
 		87C464C91A158E67008C8DCD /* IDPAWGroupedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWGroupedCommand.h; sourceTree = "<group>"; };
 		87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWGroupedCommand.m; sourceTree = "<group>"; };
+		87DFDA8E1A21C83C00BEF8C6 /* IDPAWMoveCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWMoveCommand.h; sourceTree = "<group>"; };
+		87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWMoveCommand.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,14 +168,9 @@
 			children = (
 				878D122A19F8D18A00575B94 /* IDPAWAbstRenderView.h */,
 				878D122B19F8D18A00575B94 /* IDPAWAbstRenderView.m */,
+				879A772D1A21F6D0006E0C37 /* commands */,
 				87C464BA1A158015008C8DCD /* IDPAWAbstCommand.h */,
 				87C464BB1A158015008C8DCD /* IDPAWAbstCommand.m */,
-				87C464C01A1580EF008C8DCD /* IDPAWDeleteCommand.h */,
-				87C464C11A1580EF008C8DCD /* IDPAWDeleteCommand.m */,
-				87C464C31A15812A008C8DCD /* IDPAWAddCommand.h */,
-				87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */,
-				87C464C91A158E67008C8DCD /* IDPAWGroupedCommand.h */,
-				87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */,
 				878D122C19F8D18A00575B94 /* IDPAWAbstViewController.h */,
 				878D122D19F8D18A00575B94 /* IDPAWAbstViewController.m */,
 				878D122E19F8D18A00575B94 /* IDPAWBandView.h */,
@@ -185,6 +183,21 @@
 				878D123519F8D18A00575B94 /* IDPAWTrackerView.m */,
 			);
 			path = Lib;
+			sourceTree = "<group>";
+		};
+		879A772D1A21F6D0006E0C37 /* commands */ = {
+			isa = PBXGroup;
+			children = (
+				87C464C01A1580EF008C8DCD /* IDPAWDeleteCommand.h */,
+				87C464C11A1580EF008C8DCD /* IDPAWDeleteCommand.m */,
+				87C464C31A15812A008C8DCD /* IDPAWAddCommand.h */,
+				87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */,
+				87DFDA8E1A21C83C00BEF8C6 /* IDPAWMoveCommand.h */,
+				87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */,
+				87C464C91A158E67008C8DCD /* IDPAWGroupedCommand.h */,
+				87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */,
+			);
+			name = commands;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -295,6 +308,7 @@
 				878D123919F8D18A00575B94 /* IDPAWGroupFrameView.m in Sources */,
 				878D123719F8D18A00575B94 /* IDPAWAbstViewController.m in Sources */,
 				87C464BC1A158015008C8DCD /* IDPAWAbstCommand.m in Sources */,
+				87DFDA901A21C83C00BEF8C6 /* IDPAWMoveCommand.m in Sources */,
 				87C464C21A1580EF008C8DCD /* IDPAWDeleteCommand.m in Sources */,
 				878D123619F8D18A00575B94 /* IDPAWAbstRenderView.m in Sources */,
 				87C464CB1A158E67008C8DCD /* IDPAWGroupedCommand.m in Sources */,

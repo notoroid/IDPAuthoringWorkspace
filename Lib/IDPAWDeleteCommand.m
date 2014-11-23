@@ -31,7 +31,7 @@
     IDPAWAddCommand *command = [IDPAWAddCommand addCommandWithView:self.view block:self.block];
     
     if( self.block != nil ){
-        self.block(self,self.view);
+        self.block(self,@[self.view]);
     }
     
 //    self.view.proxyRender = NO;

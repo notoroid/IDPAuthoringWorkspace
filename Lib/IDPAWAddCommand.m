@@ -34,7 +34,7 @@
         // 親に追加
     
     if( self.block != nil ){
-        self.block(self,self.view);
+        self.block(self,@[self.view]);
     }
     
     IDPAWAbstCommand *command = [IDPAWDeleteCommand deleteCommandWithView:self.view block:self.block];

@@ -17,6 +17,8 @@
 @import QuartzCore;
 #import "IDPAWAddCommand.h"
 #import "IDPAWDeleteCommand.h"
+#import "IDPAWMoveCommand.h"
+#import "IDPAWGroupedCommand.h"
 
 //static double degreesToRadians(double degrees);
 //static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
@@ -62,7 +64,8 @@ static NSInteger s_hierarchyTag = 0;
     IDPAWGroupView *_groupView; // グループ状態表示用View
     NSArray *_trackers; // Tracker用配列
     IDPAWTrackerView *_dummyTrackerView; // ダミートラッカー用View
-    CGRect _safetyBounds;
+    CGRect _safetyBounds; // (Trackerドラッグ用)安全領域情報
+    NSValue *_locationForObjectMove; // オブジェクト移動用位置
     
     CGPoint _originalGroupCenter;
     CGRect _originalGroupFrame; // グループサイズ変更時のオリジナルサイズ
@@ -365,11 +368,15 @@ static NSInteger s_hierarchyTag = 0;
 {
     __weak IDPAWAbstViewController *weakSelf = self;
     
-    IDPAWCommandPrepareBlock block = ^(IDPAWAbstCommand *command, IDPAWAbstRenderView *objectView) {
+    IDPAWCommandPrepareBlock block = ^(IDPAWAbstCommand *command,NSArray *objectViews) {
         if( [command isKindOfClass:[IDPAWAddCommand class]] ){
+            IDPAWAbstRenderView *objectView = objectViews.count > 0 ? objectViews[0] : nil;
+            
             [weakSelf addGestureWithView:objectView];
                 // GestureRecognizer を付与
         }else if( [command isKindOfClass:[IDPAWDeleteCommand class]] ){
+            IDPAWAbstRenderView *objectView = objectViews.count > 0 ? objectViews[0] : nil;
+            
             // GestureRecognizer を削除
             while (objectView.gestureRecognizers.count) {
                 [objectView removeGestureRecognizer:objectView.gestureRecognizers[0]];
@@ -379,7 +386,21 @@ static NSInteger s_hierarchyTag = 0;
             [self.groupView removeFromSuperview];
             [self synchronizeTracker];
                 // グループに合わせてトラッカーを無効化
+        }else if( [command isKindOfClass:[IDPAWMoveCommand class]] ){
+            IDPAWAbstRenderView *movedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
+            
+            // 衝突判定
+            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                return movedObjectView == objectView ? YES : NO;
+            }];
+        }else if( [command isKindOfClass:[IDPAWGroupedCommand class]] ){
+ 
+            // 衝突判定
+            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                return [objectViews containsObject:objectView];
+            }];
         }
+        
     };
     return block;
 }
@@ -984,6 +1005,72 @@ static NSInteger s_hierarchyTag = 0;
     }
 }
 
+- (void) selectedObjectViewWithBlock:(idp_selected_objecv_view_block_t)block
+{
+    __block CGRect rectGroup = CGRectNull;
+    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IDPAWAbstRenderView *objectView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+        // subviewからRenderViewを用意
+        
+        if (objectView != nil ) {
+            // 矩形衝突が認められた場合
+            if( block(objectView) ){
+                objectView.selected = YES;
+                [objectView setNeedsDisplay];
+                
+                if( CGRectIsNull(rectGroup) ){
+                    rectGroup =  objectView.frame;
+                }else{
+                    rectGroup =  CGRectUnion(rectGroup,objectView.frame);
+                }
+                
+            }else{
+                objectView.selected = NO;
+                objectView.proxyRender = NO;
+                [objectView setNeedsDisplay];
+            }
+        }
+    }];
+    
+    // 未選択の場合
+    if( CGRectIsNull(rectGroup) ){
+        // 選択状態を解除
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *objectView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( objectView.selected == YES ){
+                objectView.proxyRender = NO;
+                [objectView setNeedsDisplay];
+            }
+        }];
+        
+        // グループを除外
+        [self.groupView removeFromSuperview];
+        [self synchronizeTracker];
+    }else{
+        // グループ領域を設定
+        self.groupView.frame = _originalGroupFrame = rectGroup;
+        [self.groupView setNeedsDisplay];
+        [self.groupFrameView setNeedsDisplay];
+        
+        // グループをgroundViewのsubviewに設定
+        [self.groundView addSubview:self.groupView];
+        [self synchronizeTracker];
+        
+        // 選択状態を有効化
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *objectView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( objectView.selected == YES ){
+                objectView.proxyRender = YES;
+                [objectView setNeedsDisplay];
+            }else{
+                objectView.proxyRender = NO;
+                [objectView setNeedsDisplay];
+            }
+        }];
+    }
+}
+
+
 - (void)firedGroundPan:(UIPanGestureRecognizer *)panGestureRecognizer
 {
     CGPoint translation = [panGestureRecognizer translationInView:self.groundView];
@@ -1019,67 +1106,11 @@ static NSInteger s_hierarchyTag = 0;
             
             [self.bandView removeFromSuperview];
             _startPosition = CGPointZero;
-            
-            // コード整理必須
-            __block CGRect rectGroup = CGRectNull;
-            [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                    // subviewからRenderViewを用意
-                
-                if (renderView != nil ) {
-                    // 矩形衝突が認められた場合
-                    if( [renderView hittestWithRect:testRect] ){
-                        renderView.selected = YES;
-                        [renderView setNeedsDisplay];
-                        
-                        if( CGRectIsNull(rectGroup) ){
-                            rectGroup =  renderView.frame;
-                        }else{
-                            rectGroup =  CGRectUnion(rectGroup,renderView.frame);
-                        }
-                        
-                    }else{
-                        renderView.selected = NO;
-                        renderView.proxyRender = NO;
-                        [renderView setNeedsDisplay];
-                    }
-                }
-                
+
+            // 衝突判定
+            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                return [objectView hittestWithRect:testRect];
             }];
-            
-            // 未選択の場合
-            if( CGRectIsNull(rectGroup) ){
-                // 選択状態を解除
-                [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                    if( renderView.selected == YES ){
-                        renderView.proxyRender = NO;
-                        [renderView setNeedsDisplay];
-                    }
-                }];
-                
-                // グループを除外
-                [self.groupView removeFromSuperview];
-                [self synchronizeTracker];
-            }else{
-                // グループ領域を設定
-                self.groupView.frame = _originalGroupFrame = rectGroup;
-                [self.groupView setNeedsDisplay];
-                [self.groupFrameView setNeedsDisplay];
-                
-                // グループをgroundViewのsubviewに設定
-                [self.groundView addSubview:self.groupView];
-                [self synchronizeTracker];
-                
-                // 選択状態を有効化
-                [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                    if( renderView.selected == YES ){
-                        renderView.proxyRender = YES;
-                        [renderView setNeedsDisplay];
-                    }
-                }];
-            }
         }
             break;
         case UIGestureRecognizerStateFailed:
@@ -1186,7 +1217,7 @@ static NSInteger s_hierarchyTag = 0;
         case UIGestureRecognizerStateEnded:
         {
             UIView *targetView = panGestureRecognizer.view;
-            //targetを特定
+                //targetを特定
             
             // 回転を考慮して
             CGPoint p = CGPointZero;
@@ -1213,18 +1244,27 @@ static NSInteger s_hierarchyTag = 0;
             if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
                 CGPoint deltaPoint = CGPointMake( _originalGroupCenter.x - targetView.center.x,_originalGroupCenter.y - targetView.center.y);
                 
+                NSMutableArray *commands = [NSMutableArray array];
+                NSMutableArray *objectViews = [NSMutableArray array];
+                
                 [targetView.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
                     if( renderView.selected == YES && targetView != renderView){
+                        
+                        commands[commands.count] = [IDPAWMoveCommand moveCommandWithView:renderView location:renderView.center block:nil];
+                            // commandを作成
+                        objectViews[objectViews.count] = renderView;
+                        
                         renderView.center = CGPointMake(renderView.center.x - deltaPoint.x, renderView.center.y - deltaPoint.y);
                     }
-                    
                     _originalGroupFrame = self.groupView.frame;
                 }];
+                
+                [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:commands objectViews:objectViews block:[self commandBlock]]];
+                    // コマンド追加
+                
             }
-            
             [self synchronizeTracker];
-            
         }
             break;
         case UIGestureRecognizerStateFailed:
@@ -1244,7 +1284,7 @@ static NSInteger s_hierarchyTag = 0;
         {
             UIView *targetView = panGestureRecognizer.view;
                 //targetを特定
-            
+
             // 回転を考慮して
             CGPoint p = CGPointZero;
             {
@@ -1263,6 +1303,10 @@ static NSInteger s_hierarchyTag = 0;
                 // ジェスチャをリセット
             
             IDPAWAbstRenderView *renderView = [targetView isKindOfClass:[IDPAWAbstRenderView class]] ? (IDPAWAbstRenderView *)targetView : nil;
+            
+            if (panGestureRecognizer.state == UIGestureRecognizerStateBegan) {
+                _locationForObjectMove = renderView != nil ? [NSValue valueWithCGPoint:renderView.center] : nil;
+            }
             
             // ターゲットが未選択なのにPanを開始した場合はいったん解除
             if( renderView.selected != YES ){
@@ -1303,10 +1347,14 @@ static NSInteger s_hierarchyTag = 0;
                 _originalGroupFrame = self.groupView.frame;
                 
                 [self synchronizeTracker];
-                
-                
-            }else if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
-
+            }
+            
+            if( panGestureRecognizer.state == UIGestureRecognizerStateEnded ){
+                if( _locationForObjectMove != nil ){
+                    [self pushCommand:[IDPAWMoveCommand moveCommandWithView:renderView location:[_locationForObjectMove CGPointValue] block:[self commandBlock]]];
+                        // commandを追加
+                    _locationForObjectMove = nil;
+                }
             }
         }
             break;
@@ -1434,7 +1482,7 @@ static NSInteger s_hierarchyTag = 0;
                 
                 [targetView != self.trackers[3] ? self.trackers[3] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
 
-                // 終了後にDummtTrackerをTrackerに置き換える
+                // 終了後にDummyTrackerをTrackerに置き換える
                 if( panGestureRecognizer.state == UIGestureRecognizerStateEnded || panGestureRecognizer.state == UIGestureRecognizerStateCancelled){
                     
                     CGFloat ratio = CGRectGetWidth(self.groupView.frame) / CGRectGetWidth(_originalGroupFrame);

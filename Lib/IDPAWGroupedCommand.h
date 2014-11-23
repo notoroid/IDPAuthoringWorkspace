@@ -10,6 +10,6 @@
 
 @interface IDPAWGroupedCommand : IDPAWAbstCommand
 
-+ (IDPAWGroupedCommand *) groupedCommandWithCommands:(NSArray *)commands;
++ (IDPAWGroupedCommand *) groupedCommandWithCommands:(NSArray *)commands objectViews:(NSArray *)objectViews block:(IDPAWCommandPrepareBlock)block;
 
 @end
