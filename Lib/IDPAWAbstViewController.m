@@ -20,6 +20,7 @@
 #import "IDPAWMoveCommand.h"
 #import "IDPAWGroupedCommand.h"
 #import "IDPAWResizeCommand.h"
+#import "IDPAWTransformCommand.h"
 
 //static double degreesToRadians(double degrees);
 //static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
@@ -522,9 +523,17 @@ static NSInteger s_hierarchyTag = 0;
     
     UIView *testView = [[UIView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(10,10)}];
     
+    NSMutableArray *commands = [NSMutableArray array];
+    NSMutableArray *objectViews = [NSMutableArray array];
+    
+    
     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         if( renderView.selected == YES ){
+            objectViews[objectViews.count] = renderView;
+            commands[commands.count] = [IDPAWTransformCommand transformCommandWithView:renderView location:renderView.center transform:renderView.transform block:[self commandBlock]];
+                // コマンドを作成
+            
             // 回転を適用
             CGAffineTransform transform = CGAffineTransformConcat(renderView.transform, self.groupView.transform);
             renderView.transform = transform;
@@ -548,6 +557,9 @@ static NSInteger s_hierarchyTag = 0;
             [testView removeFromSuperview];
         }
     }];
+    
+    [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:commands objectViews:objectViews block:[self commandBlock]]];
+        // コマンド追加
     
     self.groupView.transform = CGAffineTransformIdentity;
     

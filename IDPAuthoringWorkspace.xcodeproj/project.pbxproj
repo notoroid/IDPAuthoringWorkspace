@@ -22,6 +22,7 @@
 		878D123B19F8D18A00575B94 /* IDPAWTrackerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D123519F8D18A00575B94 /* IDPAWTrackerView.m */; };
 		878D123E19F8D1D900575B94 /* EditObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D123D19F8D1D900575B94 /* EditObjectView.m */; };
 		879A77301A220DBC006E0C37 /* IDPAWResizeCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 879A772F1A220DBC006E0C37 /* IDPAWResizeCommand.m */; };
+		879A77361A221C72006E0C37 /* IDPAWTransformCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 879A77351A221C72006E0C37 /* IDPAWTransformCommand.m */; };
 		87BC0EFE19FF527500C7EB2A /* EditGroupView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87BC0EFD19FF527500C7EB2A /* EditGroupView.m */; };
 		87C464BC1A158015008C8DCD /* IDPAWAbstCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464BB1A158015008C8DCD /* IDPAWAbstCommand.m */; };
 		87C464C21A1580EF008C8DCD /* IDPAWDeleteCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464C11A1580EF008C8DCD /* IDPAWDeleteCommand.m */; };
@@ -70,6 +71,8 @@
 		878D123D19F8D1D900575B94 /* EditObjectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditObjectView.m; sourceTree = "<group>"; };
 		879A772E1A220DBC006E0C37 /* IDPAWResizeCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWResizeCommand.h; sourceTree = "<group>"; };
 		879A772F1A220DBC006E0C37 /* IDPAWResizeCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWResizeCommand.m; sourceTree = "<group>"; };
+		879A77341A221C72006E0C37 /* IDPAWTransformCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWTransformCommand.h; sourceTree = "<group>"; };
+		879A77351A221C72006E0C37 /* IDPAWTransformCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWTransformCommand.m; sourceTree = "<group>"; };
 		87BC0EFC19FF527500C7EB2A /* EditGroupView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditGroupView.h; sourceTree = "<group>"; };
 		87BC0EFD19FF527500C7EB2A /* EditGroupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditGroupView.m; sourceTree = "<group>"; };
 		87C464BA1A158015008C8DCD /* IDPAWAbstCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWAbstCommand.h; sourceTree = "<group>"; };
@@ -199,6 +202,8 @@
 				87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */,
 				879A772E1A220DBC006E0C37 /* IDPAWResizeCommand.h */,
 				879A772F1A220DBC006E0C37 /* IDPAWResizeCommand.m */,
+				879A77341A221C72006E0C37 /* IDPAWTransformCommand.h */,
+				879A77351A221C72006E0C37 /* IDPAWTransformCommand.m */,
 				87C464C91A158E67008C8DCD /* IDPAWGroupedCommand.h */,
 				87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */,
 			);
@@ -305,6 +310,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				879A77361A221C72006E0C37 /* IDPAWTransformCommand.m in Sources */,
 				878D123A19F8D18A00575B94 /* IDPAWGroupView.m in Sources */,
 				878D123E19F8D1D900575B94 /* EditObjectView.m in Sources */,
 				87BC0EFE19FF527500C7EB2A /* EditGroupView.m in Sources */,
