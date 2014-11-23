@@ -385,33 +385,39 @@ static NSInteger s_hierarchyTag = 0;
             }
             
             // グループを除外
-            [self.groupView removeFromSuperview];
-            [self synchronizeTracker];
+            [weakSelf.groupView removeFromSuperview];
+            [weakSelf synchronizeTracker];
                 // グループに合わせてトラッカーを無効化
         }else if( [command isKindOfClass:[IDPAWMoveCommand class]] ){
             IDPAWAbstRenderView *movedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return movedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWResizeCommand class]] ){
             IDPAWAbstRenderView *resizedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return resizedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWGroupedCommand class]] ){
- 
             // 衝突判定
-            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return [objectViews containsObject:objectView];
             }];
         }
         
+        [weakSelf customCommandPrepare:command objectViews:objectViews];
+
     };
     return block;
+}
+             
+- (void)customPrepareCommand:(IDPAWAbstCommand *)command objectViews:(NSArray *)objectViews
+{
+
 }
 
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView

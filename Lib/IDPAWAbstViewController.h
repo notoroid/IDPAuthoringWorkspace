@@ -52,6 +52,10 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
 // select object
 - (void) selectObjectViews:(NSArray *)objectViews;
 
+// overwride method(s)
+- (void)customCommandPrepare:(IDPAWAbstCommand *)command objectViews:(NSArray *)objectViews;
+
+
 @property(readonly,nonatomic) IDPAWGroupView *groupView;
 
 - (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare;
