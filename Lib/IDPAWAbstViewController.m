@@ -50,7 +50,7 @@ static NSInteger s_hierarchyTag = 0;
 @end
 
 
-@interface IDPAWAbstViewController () <UIGestureRecognizerDelegate>
+@interface IDPAWAbstViewController () <UIGestureRecognizerDelegate,IDPAWGroupViewDelegate>
 {
     BOOL _initialized;
     
@@ -77,6 +77,7 @@ static NSInteger s_hierarchyTag = 0;
     UIMenuController* _menu; // メニュー
     NSValue *_modifiedPosition;
     id _menuObserver;
+    NSData *_clipboardData;
     
     NSMutableArray *_commands;
     NSMutableArray *_groupCommandObjectViews;
@@ -248,6 +249,7 @@ static NSInteger s_hierarchyTag = 0;
 {
     if( _groupView == nil ){
         _groupView = [[IDPAWGroupView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(20.0, 20.0f)}];
+        _groupView.delegate = self;
         _groupView.backgroundColor = [UIColor clearColor];
         _groupView.opaque = NO;
 //        _groupView.userInteractionEnabled = NO;
@@ -361,6 +363,11 @@ static NSInteger s_hierarchyTag = 0;
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
+}
+
+- (void)groupViewClipboardData:(NSData *)clipboardData
+{
+    _clipboardData = clipboardData;
 }
 
 - (void) addGestureWithView:(UIView *)view
@@ -1108,14 +1115,14 @@ static NSInteger s_hierarchyTag = 0;
 
 - (void) toggleMenuWithView:(UIView *)view location:(CGPoint)location type:(IDPAWAbstViewControllerMenuType)menuType
 {
-    if( [view becomeFirstResponder] && _menu == nil ){
+    if( [view becomeFirstResponder] && _menu.menuVisible != YES ){
+        [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
         _menu = [UIMenuController sharedMenuController];
         
         NSNotificationCenter *dnc = [NSNotificationCenter defaultCenter];
         _menuObserver = [dnc addObserverForName:UIMenuControllerWillHideMenuNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
             [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
             _menuObserver = nil;
-            
             _menu = nil;
         }];
         

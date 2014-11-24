@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol IDPAWGroupViewDelegate;
+
 @interface IDPAWGroupView : UIView
 - (BOOL) hittestWithLocation:(CGPoint)location;
+- (BOOL) hasReplicableObjects;
+@property (weak,nonatomic) id<IDPAWGroupViewDelegate>delegate;
 @end
+
+@protocol IDPAWGroupViewDelegate <NSObject>
+- (void)groupViewClipboardData:(NSData *)clipboardData;
+@end
+

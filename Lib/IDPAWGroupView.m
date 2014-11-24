@@ -24,7 +24,46 @@
 
 - (void)copy:(id)sender
 {
+    NSMutableArray *renderViews = [NSMutableArray array];
     
+    [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if( obj != self ){
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( [renderView isReplicableObject] ){
+                renderViews[renderViews.count] = renderView;
+            }
+        }
+    }];
+    
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:renderViews];
+    [_delegate groupViewClipboardData:data];
+        // コピー作成通知
+}
+
+- (BOOL) canPerformAction:(SEL)action withSender:(id)sender
+{
+    BOOL result = NO;
+    if( action == @selector(copy:) ){
+        result = [self hasReplicableObjects];
+    }
+    return result;
+}
+
+
+- (BOOL) hasReplicableObjects
+{
+    __block BOOL result = NO;
+    [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if( obj != self ){
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( [renderView isReplicableObject] ){
+                result = YES;
+                *stop = YES;
+            }
+        }
+    }];
+    return result
+    ;
 }
 
 - (BOOL) hittestWithLocation:(CGPoint)location

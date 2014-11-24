@@ -18,6 +18,10 @@
 - (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
 - (BOOL) hittestWithRect:(CGRect)rect;
 - (BOOL) hittestWithLocation:(CGPoint)location;
+- (BOOL) isReplicableObject;
+
+- (NSData *) serializeData;
+- (instancetype) initWithCoder:(NSCoder *)aDecoder;
 @end
 
 

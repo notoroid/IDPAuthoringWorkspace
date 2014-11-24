@@ -16,6 +16,16 @@
 
 @implementation IDPAWAbstRenderView
 
+- (NSData *) serializeData
+{
+    return nil;
+}
+
+- (BOOL) isReplicableObject
+{
+    return NO;
+}
+
 - (BOOL) selected
 {
     return _selected;
