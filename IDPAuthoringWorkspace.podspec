@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "IDPAuthoringWorkspace"
-  s.version      = "0.0.14"
+  s.version      = "0.0.15"
   s.summary      = "IDPAuthoringWorkspace is middleware to realize in the iPhone / iPad on the authoring friendly user interface."
 
   s.description  = <<-DESC
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "7.0"
 
-  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.14" }
+  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.15" }
 
   s.source_files  = "Lib/**/*.{h,m}"
   s.public_header_files = "Lib/**/*.h"
