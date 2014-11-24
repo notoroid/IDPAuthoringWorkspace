@@ -29,7 +29,7 @@
     [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if( obj != self ){
             IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-            if( [renderView isReplicableObject] ){
+            if( renderView.selected == YES && [renderView isReplicableObject] ){
                 renderViews[renderViews.count] = renderView;
             }
         }
@@ -56,7 +56,7 @@
     [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if( obj != self ){
             IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-            if( [renderView isReplicableObject] ){
+            if( renderView.selected == YES && [renderView isReplicableObject] ){
                 result = YES;
                 *stop = YES;
             }
