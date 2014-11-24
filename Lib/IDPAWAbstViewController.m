@@ -839,10 +839,29 @@ static NSInteger s_hierarchyTag = 0;
 
 - (void) popCommand
 {
-    IDPAWAbstCommand *command = [self.commands lastObject];
-    [self.commands removeObject:self.commands.lastObject];
+    [self popCommandWithOption:IDPAWAbstViewControllerCommandOptionDefault];
+}
+
+- (void) popCommandWithOption:(IDPAWAbstViewControllerCommandOption)option
+{
+    switch (option) {
+        case IDPAWAbstViewControllerCommandOptionDefault:
+        {
+            IDPAWAbstCommand *command = [self.commands lastObject];
+            [self.commands removeObject:self.commands.lastObject];
+            [command execute];
+        }
+            break;
+        case IDPAWAbstViewControllerCommandOptionNoEffect:
+        {
+            [self.commands removeObject:self.commands.lastObject];
+        }
+            break;
+        default:
+            break;
+    }
     
-    [command execute];
+    
 }
 
 - (NSInteger) commandNumber

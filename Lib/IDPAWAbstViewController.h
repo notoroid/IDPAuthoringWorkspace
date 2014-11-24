@@ -20,6 +20,13 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
     IDPAWAbstViewControllerEditModeHierarchy // 階層をpush
 };
 
+typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerCommandOption )
+{
+     IDPAWAbstViewControllerCommandOptionDefault
+    ,IDPAWAbstViewControllerCommandOptionNoEffect
+};
+
+
 @interface IDPAWAbstViewController : UIViewController
 
 // GestureRecognizer
@@ -63,6 +70,7 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
 
 - (void) pushCommand:(IDPAWAbstCommand *)command;
 - (void) popCommand;
+- (void) popCommandWithOption:(IDPAWAbstViewControllerCommandOption)option;
 - (NSInteger) commandNumber;
 - (void) popFrontCommand;
 
