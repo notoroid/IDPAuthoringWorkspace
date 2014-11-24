@@ -17,6 +17,16 @@
 
 @implementation IDPAWGroupView
 
+- (BOOL) canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (void)copy:(id)sender
+{
+    
+}
+
 - (BOOL) hittestWithLocation:(CGPoint)location
 {
     __block BOOL hitTest = NO;

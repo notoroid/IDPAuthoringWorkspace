@@ -74,6 +74,10 @@ static NSInteger s_hierarchyTag = 0;
     
     NSMutableArray *_hierarchies;
     
+    UIMenuController* _menu; // メニュー
+    NSValue *_modifiedPosition;
+    id _menuObserver;
+    
     NSMutableArray *_commands;
     NSMutableArray *_groupCommandObjectViews;
     NSMutableArray *_groupCommands;
@@ -322,17 +326,17 @@ static NSInteger s_hierarchyTag = 0;
     _groundTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundTap:)];
     _groundTapGesture.delegate = self;
     [self.groundView addGestureRecognizer:_groundTapGesture];
-    // Tapジェスチャを追加
+        // Tapジェスチャを追加
     
     _groundPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundPan:)];
     _groundPanGesture.delegate = self;
     [self.groundView addGestureRecognizer:_groundPanGesture];
-    // Panジェスチャを追加
+        // Panジェスチャを追加
     
     _groundRotateGesture = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroundRotate:)];
     _groundRotateGesture.delegate = self;
     [self.groundView addGestureRecognizer:_groundRotateGesture];
-    // Rotateジェスチャを追加
+        // Rotateジェスチャを追加
 }
 
 - (void)viewDidLoad {
@@ -352,7 +356,11 @@ static NSInteger s_hierarchyTag = 0;
     _groundRotateGesture.delegate = self;
     [self.groundView addGestureRecognizer:_groundRotateGesture];
         // Rotateジェスチャを追加
-    
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
 }
 
 - (void) addGestureWithView:(UIView *)view
@@ -366,6 +374,11 @@ static NSInteger s_hierarchyTag = 0;
     tapGestureRecognizer.delegate = self;
     [view addGestureRecognizer:tapGestureRecognizer];
         // ジェスチャを追加
+}
+
+- (NSArray *) menuItemsWithMenuType:(IDPAWAbstViewControllerMenuType)menuType view:(UIView *)view
+{
+    return nil;
 }
 
 - (IDPAWCommandPrepareBlock) commandBlock
@@ -442,7 +455,7 @@ static NSInteger s_hierarchyTag = 0;
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView
 {
     [self addGestureWithView:objectView];
-        // GestureRecognizer を付与
+    // GestureRecognizer を付与
     
     [self.groundView addSubview:objectView];
     
@@ -452,17 +465,17 @@ static NSInteger s_hierarchyTag = 0;
         _groupCommands[_groupCommands.count] = command;
     }else{
         [self pushCommand:command];
-            // commandを追加
+        // commandを追加
     }
 }
 
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView belowSubview:(UIView *)siblingSubview
 {
     [self addGestureWithView:objectView];
-        // GestureRecognizer を付与
+    // GestureRecognizer を付与
     
     [self.groundView insertSubview:objectView belowSubview:siblingSubview];
-
+    
     
     IDPAWAbstCommand *command = [IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]];
     if( _groupCommands != nil ){
@@ -477,7 +490,7 @@ static NSInteger s_hierarchyTag = 0;
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview
 {
     [self addGestureWithView:objectView];
-        // GestureRecognizer を付与
+    // GestureRecognizer を付与
     
     [self.groundView insertSubview:objectView aboveSubview:siblingSubview];
     
@@ -563,9 +576,8 @@ static NSInteger s_hierarchyTag = 0;
             [self removeObjectView:obj];
         }];
     }
-    [self endGroupCommand];    
-    
-    
+    [self endGroupCommand];
+
     // グループを除外
     [self.groupView removeFromSuperview];
     [self synchronizeTracker];
@@ -1053,23 +1065,77 @@ static NSInteger s_hierarchyTag = 0;
 //}
 
 
-- (void)firedGroundTap:(id)sender
+- (void)firedGroundTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
-    // 既存の選択状態を無効化
+    // hittestを実行
+    __block BOOL hitTest = NO;
     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         if( renderView.selected == YES ){
-            renderView.selected = NO;
-            renderView.proxyRender = NO;
-            [renderView setNeedsDisplay];
+            CGPoint location = [tapGestureRecognizer locationInView:renderView.superview];
+            if( [renderView hittestWithLocation:location] ){
+                hitTest = YES;
+            }
         }
     }];
+    
+    if( hitTest != YES ){
+        // 既存の選択状態を無効化
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( renderView.selected == YES ){
+                renderView.selected = NO;
+                renderView.proxyRender = NO;
+                [renderView setNeedsDisplay];
+            }
+        }];
 
-    // グループを除外
-    [self.groupView removeFromSuperview];
-    [self synchronizeTracker];
-        // グループに合わせてトラッカーを無効化
+        // グループを除外
+        [self.groupView removeFromSuperview];
+        [self synchronizeTracker];
+            // グループに合わせてトラッカーを無効化
+        
+        CGPoint location = [tapGestureRecognizer locationInView:self.groundView];
+        // メニューを表示
+        [self toggleMenuWithView:self.groundView location:location type:IDPAWAbstViewControllerMenuTypeGroundView];
+    }else{
+        CGPoint location = [tapGestureRecognizer locationInView:self.groupView];
+            // メニューを表示
+        [self toggleMenuWithView:self.groupView location:location type:IDPAWAbstViewControllerMenuTypeGroupView];
+    }
+
 }
+
+- (void) toggleMenuWithView:(UIView *)view location:(CGPoint)location type:(IDPAWAbstViewControllerMenuType)menuType
+{
+    if( [view becomeFirstResponder] && _menu == nil ){
+        _menu = [UIMenuController sharedMenuController];
+        
+        NSNotificationCenter *dnc = [NSNotificationCenter defaultCenter];
+        _menuObserver = [dnc addObserverForName:UIMenuControllerWillHideMenuNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+            [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
+            _menuObserver = nil;
+            
+            _menu = nil;
+        }];
+        
+        CGRect minRect = CGRectNull;
+        
+        minRect.origin = location;
+        
+        _modifiedPosition = [NSValue valueWithCGPoint:location];
+            // 位置を記憶しておく
+        
+        [_menu setTargetRect:minRect inView:view];
+        
+        _menu.menuItems = [self menuItemsWithMenuType:menuType view:view];
+        
+        [_menu setMenuVisible:YES animated:YES];
+    }else{
+        [_menu setMenuVisible:NO animated:YES];
+    }
+}
+
 
 /**
  *  キャンバスサイズを返す
@@ -1302,7 +1368,7 @@ static NSInteger s_hierarchyTag = 0;
         // 選択状態が無効(targetViewがRenderViewではない場合)
         [self.groupView removeFromSuperview];
         [self synchronizeTracker];
-            // グループを買い解除
+            // グループを解除
     }else{
         //　グループを選択したオブジェクトに同期
         self.groupView.frame = _originalGroupFrame = renderView.frame;
@@ -1311,8 +1377,12 @@ static NSInteger s_hierarchyTag = 0;
             // グループの描画を更新する
         [self.groupFrameView setNeedsDisplay];
             // グレープフレームの描画を更新する
-        [self synchronizeTracker];    }
-    
+        [self synchronizeTracker];
+        
+        CGPoint location = [tapGestureRecognizer locationInView:self.groupView];
+        // メニューを表示
+        [self toggleMenuWithView:self.groupView location:location type:IDPAWAbstViewControllerMenuTypeGroupView];
+    }
 }
 
 - (void)firedGroupPan:(UIPanGestureRecognizer *)panGestureRecognizer

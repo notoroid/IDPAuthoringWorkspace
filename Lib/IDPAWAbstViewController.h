@@ -26,6 +26,11 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerCommandOption )
     ,IDPAWAbstViewControllerCommandOptionNoEffect
 };
 
+typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerMenuType )
+{
+     IDPAWAbstViewControllerMenuTypeGroundView
+    ,IDPAWAbstViewControllerMenuTypeGroupView
+};
 
 @interface IDPAWAbstViewController : UIViewController
 
@@ -65,6 +70,7 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerCommandOption )
 
 // overwride method(s)
 - (void)customCommandPrepare:(IDPAWAbstCommand *)command objectViews:(NSArray *)objectViews;
+- (NSArray *) menuItemsWithMenuType:(IDPAWAbstViewControllerMenuType)menuType view:(UIView *)view;
 
 
 @property(readonly,nonatomic) IDPAWGroupView *groupView;
