@@ -75,6 +75,8 @@ static NSInteger s_hierarchyTag = 0;
     NSMutableArray *_hierarchies;
     
     NSMutableArray *_commands;
+    NSMutableArray *_groupCommandObjectViews;
+    NSMutableArray *_groupCommands;
 }
 @property(readonly,nonatomic) IDPAWBandView *bandView;
 @property(readonly,nonatomic) IDPAWGroupFrameView *groupFrameView;
@@ -420,6 +422,23 @@ static NSInteger s_hierarchyTag = 0;
 
 }
 
+// Grouped commands for object operations
+- (void) beginGroupCommand
+{
+    _groupCommandObjectViews = [NSMutableArray array];
+    _groupCommands = [NSMutableArray array];
+}
+
+- (void) endGroupCommand
+{
+    if( _groupCommands != nil ){
+        [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:_groupCommands objectViews:_groupCommandObjectViews block:[self commandBlock]]];
+        
+        _groupCommandObjectViews = nil;
+        _groupCommands = nil;
+    }
+}
+
 - (void) addObjectView:(IDPAWAbstRenderView *) objectView
 {
     [self addGestureWithView:objectView];
@@ -427,8 +446,14 @@ static NSInteger s_hierarchyTag = 0;
     
     [self.groundView addSubview:objectView];
     
-    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
-        // commandを追加
+    IDPAWAbstCommand *command = [IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]];
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }else{
+        [self pushCommand:command];
+            // commandを追加
+    }
 }
 
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView belowSubview:(UIView *)siblingSubview
@@ -437,9 +462,16 @@ static NSInteger s_hierarchyTag = 0;
         // GestureRecognizer を付与
     
     [self.groundView insertSubview:objectView belowSubview:siblingSubview];
+
     
-    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
+    IDPAWAbstCommand *command = [IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]];
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }else{
+        [self pushCommand:command];
         // commandを追加
+    }
 }
 
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview
@@ -449,15 +481,28 @@ static NSInteger s_hierarchyTag = 0;
     
     [self.groundView insertSubview:objectView aboveSubview:siblingSubview];
     
-    [self pushCommand:[IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]]];
+    IDPAWAbstCommand *command = [IDPAWDeleteCommand deleteCommandWithView:objectView block:[self commandBlock]];
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }else{
+        [self pushCommand:command];
         // commandを追加
+    }
+    
 }
 
 
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView
 {
-    [self pushCommand:[IDPAWAddCommand addCommandWithView:objectView block:[self commandBlock]]];
+    IDPAWAbstCommand *command = [IDPAWAddCommand addCommandWithView:objectView block:[self commandBlock]];
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }else{
+        [self pushCommand:command];
         // commandを追加
+    }
     
     while (objectView.gestureRecognizers.count) {
         [objectView removeGestureRecognizer:objectView.gestureRecognizers[0]];
@@ -512,9 +557,13 @@ static NSInteger s_hierarchyTag = 0;
         }
     }];
     
-    [deleteTarget enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [self removeObjectView:obj];
-    }];
+    [self beginGroupCommand];
+    {
+        [deleteTarget enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self removeObjectView:obj];
+        }];
+    }
+    [self endGroupCommand];    
     
     
     // グループを除外
@@ -684,6 +733,8 @@ static NSInteger s_hierarchyTag = 0;
                 // 比較オブジェクトを複製
             self.hierarchies[self.hierarchies.count] = editModeObject;
                 // 階層を追加
+
+            NSInteger lastUndoNumber = [self commandNumber];
             
             NSMutableArray *selecteObjectViews = [NSMutableArray array];
 
@@ -724,6 +775,10 @@ static NSInteger s_hierarchyTag = 0;
                     editModeObject.viewsByHierarchyTag[@(s_hierarchyTag)] = renderView;
                 }
             }];
+            
+            while ([self commandNumber] > lastUndoNumber) {
+                [self popCommandWithOption:IDPAWAbstViewControllerCommandOptionNoEffect];
+            }
             
             [self selectObjectViews:selecteObjectViews];
                 // 選択状態を更新
@@ -770,9 +825,11 @@ static NSInteger s_hierarchyTag = 0;
                     targetObjectViews[targetObjectViews.count] = renderSubView;
                 }
             }];
+
+            NSInteger lastUndoNumber = [self commandNumber];
             
             NSMutableSet *setSelectedViews = [NSMutableSet set];
-            // 選択済みviewを集めるコレクションを作成
+                // 選択済みviewを集めるコレクションを作成
             
             [editModeObject.viewsByHierarchyTag enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 IDPAWAbstRenderView* renderView = obj;
@@ -820,6 +877,10 @@ static NSInteger s_hierarchyTag = 0;
                     }];
                 }
             }];
+            
+            while ([self commandNumber] > lastUndoNumber) {
+                [self popCommandWithOption:IDPAWAbstViewControllerCommandOptionNoEffect];
+            }
             
             [self selectObjectViews:setSelectedViews.allObjects];
                 // 選択状態を更新
