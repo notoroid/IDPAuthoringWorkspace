@@ -388,6 +388,18 @@ static NSInteger s_hierarchyTag = 0;
     return nil;
 }
 
+- (BOOL) hastPasteObjects
+{
+    return _clipboardData != nil ? YES : NO;
+}
+
+- (NSArray *) pasteObjects
+{
+    NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:_clipboardData];
+
+    return array;
+}
+
 - (IDPAWCommandPrepareBlock) commandBlock
 {
     __weak IDPAWAbstViewController *weakSelf = self;
