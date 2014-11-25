@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerMenuType )
 
 @property(readonly,nonatomic) IDPAWGroupView *groupView;
 
-- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare;
+- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode inclutionBlock:(idp_hierarchy_compare_block_t)inclutionBlock exclusionBlock:(idp_hierarchy_compare_block_t)exclusionBlock;
 - (void) popEditMode;
 
 - (void) pushCommand:(IDPAWAbstCommand *)command;

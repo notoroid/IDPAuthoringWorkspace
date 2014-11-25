@@ -33,7 +33,7 @@ static NSInteger s_hierarchyTag = 0;
 @interface IDPAWEditModeObject : NSObject
 @property (nonatomic) IDPAWAbstViewControllerEditMode editMode;
 @property (nonatomic) NSMutableDictionary *viewsByHierarchyTag;
-@property (copy,nonatomic) idp_hierarchy_compare_block_t compare;
+@property (copy,nonatomic) idp_hierarchy_compare_block_t inclutionBlock;
 - (instancetype) initWithEditMode:(IDPAWAbstViewControllerEditMode)editMode;
 @end
 
@@ -761,13 +761,13 @@ static NSInteger s_hierarchyTag = 0;
     
 }
 
-- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode compare:(idp_hierarchy_compare_block_t)compare
+- (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode inclutionBlock:(idp_hierarchy_compare_block_t)inclutionBlock exclusionBlock:(idp_hierarchy_compare_block_t)exclusionBlock
 {
     switch (editMode) {
         case IDPAWAbstViewControllerEditModeHierarchy:
         {
             IDPAWEditModeObject *editModeObject = [[IDPAWEditModeObject alloc] initWithEditMode:editMode];
-            editModeObject.compare = compare;
+            editModeObject.inclutionBlock = inclutionBlock;
                 // 比較オブジェクトを複製
             self.hierarchies[self.hierarchies.count] = editModeObject;
                 // 階層を追加
@@ -779,7 +779,7 @@ static NSInteger s_hierarchyTag = 0;
             NSArray *objectViews = self.objectViews;
             [objectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                if( renderView != nil ){
+                if( renderView != nil && exclusionBlock(renderView) != YES ){
                     s_hierarchyTag++;
                         // タグを発行
                     
@@ -788,7 +788,7 @@ static NSInteger s_hierarchyTag = 0;
                     
                     NSArray *subViews = [renderView.subviews copy];
                     [subViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                        IDPAWAbstRenderView *renderSubView = compare(obj) ? obj : nil;
+                        IDPAWAbstRenderView *renderSubView = inclutionBlock(obj) ? obj : nil;
                         
                         if( renderSubView != nil ){
                             renderSubView.hierarchyTag = s_hierarchyTag;
@@ -843,14 +843,14 @@ static NSInteger s_hierarchyTag = 0;
                 // hierarchyTagをキー値としてコレクションを作成
             
             
-            idp_hierarchy_compare_block_t compare = editModeObject.compare;
-            editModeObject.compare = nil;
+            idp_hierarchy_compare_block_t inclutionBlock = editModeObject.inclutionBlock;
+            editModeObject.inclutionBlock = nil;
                 // 比較オブジェクトを解放
             
             
             [objectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 
-                IDPAWAbstRenderView *renderSubView = compare(obj) ? obj : nil;
+                IDPAWAbstRenderView *renderSubView = inclutionBlock(obj) ? obj : nil;
                 
                 if( renderSubView != nil ){
                     NSMutableArray *targetObjectViews = dictObjectViews[@(renderSubView.hierarchyTag)];
