@@ -77,7 +77,6 @@ static NSInteger s_hierarchyTag = 0;
     UIMenuController* _menu; // メニュー
     NSValue *_modifiedPosition;
     id _menuObserver;
-    NSData *_clipboardData;
     
     NSMutableArray *_commands;
     NSMutableArray *_groupCommandObjectViews;
@@ -365,9 +364,9 @@ static NSInteger s_hierarchyTag = 0;
     [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
 }
 
-- (void)groupViewClipboardData:(NSData *)clipboardData
+- (void)groupViewArchiveDataWithObjectViews:(NSArray *)objectViews
 {
-    _clipboardData = clipboardData;
+    [self archiveDataWithObjectViews:objectViews];
 }
 
 - (void) addGestureWithView:(UIView *)view
@@ -388,16 +387,19 @@ static NSInteger s_hierarchyTag = 0;
     return nil;
 }
 
-- (BOOL) hastPasteObjects
+- (void) archiveDataWithObjectViews:(NSArray *)objectViews
 {
-    return _clipboardData != nil ? YES : NO;
+    // から実装
+}
+
+- (BOOL) hasPasteObjects
+{
+    return NO;
 }
 
 - (NSArray *) pasteObjects
 {
-    NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:_clipboardData];
-
-    return array;
+    return nil;
 }
 
 - (IDPAWCommandPrepareBlock) commandBlock

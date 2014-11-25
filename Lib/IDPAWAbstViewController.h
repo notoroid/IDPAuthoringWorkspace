@@ -73,7 +73,8 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerMenuType )
 - (NSArray *) menuItemsWithMenuType:(IDPAWAbstViewControllerMenuType)menuType view:(UIView *)view;
 
 // paste utilities
-- (BOOL) hastPasteObjects;
+- (void) archiveDataWithObjectViews:(NSArray *)objectViews;
+- (BOOL) hasPasteObjects;
 - (NSArray *) pasteObjects;
 
 @property(readonly,nonatomic) IDPAWGroupView *groupView;

@@ -17,6 +17,6 @@
 @end
 
 @protocol IDPAWGroupViewDelegate <NSObject>
-- (void)groupViewClipboardData:(NSData *)clipboardData;
+- (void)groupViewArchiveDataWithObjectViews:(NSArray *)objectViews;
 @end
 

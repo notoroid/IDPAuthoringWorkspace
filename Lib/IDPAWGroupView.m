@@ -35,8 +35,7 @@
         }
     }];
     
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:renderViews];
-    [_delegate groupViewClipboardData:data];
+    [_delegate groupViewArchiveDataWithObjectViews:renderViews];
         // コピー作成通知
 }
 
