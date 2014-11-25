@@ -75,7 +75,7 @@ static NSInteger s_hierarchyTag = 0;
     NSMutableArray *_hierarchies;
     
     UIMenuController* _menu; // メニュー
-    NSValue *_modifiedPosition;
+    NSValue *_menuPosition;
     id _menuObserver;
     
     NSMutableArray *_commands;
@@ -389,7 +389,7 @@ static NSInteger s_hierarchyTag = 0;
 
 - (void) archiveDataWithObjectViews:(NSArray *)objectViews
 {
-    // から実装
+    // 空実装
 }
 
 - (BOOL) hasPasteObjects
@@ -397,9 +397,14 @@ static NSInteger s_hierarchyTag = 0;
     return NO;
 }
 
-- (NSArray *) pasteObjects
+- (NSArray *) pasteObjectsWithLocation:(CGPoint)location
 {
     return nil;
+}
+
+- (CGPoint) lastMenuLocation
+{
+    return [_menuPosition CGPointValue];
 }
 
 - (IDPAWCommandPrepareBlock) commandBlock
@@ -1144,7 +1149,7 @@ static NSInteger s_hierarchyTag = 0;
         
         minRect.origin = location;
         
-        _modifiedPosition = [NSValue valueWithCGPoint:location];
+        _menuPosition = [NSValue valueWithCGPoint:location];
             // 位置を記憶しておく
         
         [_menu setTargetRect:minRect inView:view];
