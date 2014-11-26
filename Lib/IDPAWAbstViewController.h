@@ -32,6 +32,12 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerMenuType )
     ,IDPAWAbstViewControllerMenuTypeGroupView
 };
 
+typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
+{
+     IDPAWAbstViewControllerSelectToolModeRectArea
+    ,IDPAWAbstViewControllerSelectToolModeLasso
+};
+
 @interface IDPAWAbstViewController : UIViewController
 
 // GestureRecognizer
@@ -40,6 +46,8 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerMenuType )
 // object collection
 @property (readonly,nonatomic) NSArray *selectedObjectViews;
 @property (readonly,nonatomic) NSArray *objectViews;
+
+@property (assign,nonatomic) IDPAWAbstViewControllerSelectToolMode selectToolMode;
 
 // please override unser methods
 - (UIView *) groundView; // view for gound

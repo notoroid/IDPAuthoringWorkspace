@@ -21,7 +21,13 @@
 
 - (void)drawRect:(CGRect)rect
 {
-    [self drawBandWithFrame:rect];
+    if( _bezierPath != nil ){
+        [UIColor.redColor setStroke];
+        _bezierPath.lineWidth = 2;
+        [_bezierPath stroke];
+    }else{
+        [self drawBandWithFrame:rect];
+    }
 //    [_strokeColor setStroke];
 //    [_bezierPath stroke];
 }

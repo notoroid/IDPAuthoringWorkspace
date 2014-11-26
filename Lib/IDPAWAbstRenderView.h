@@ -18,6 +18,7 @@
 - (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
 - (BOOL) hittestWithRect:(CGRect)rect;
 - (BOOL) hittestWithLocation:(CGPoint)location;
+- (BOOL) hittestWithPath:(UIBezierPath *)path;
 - (BOOL) isReplicableObject;
 @end
 

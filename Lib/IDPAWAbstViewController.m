@@ -60,9 +60,14 @@ static NSInteger s_hierarchyTag = 0;
  
     UIPanGestureRecognizer *_groupPanGesture;
     
-    
     CGPoint _startPosition; // バンドの開始位置
     IDPAWBandView *_bandView; // バンド用View
+    
+    NSInteger _counter;
+    NSValue *_firstPoint;
+    CGPoint _points[5];
+    UIBezierPath *_pathLasso;
+    
     IDPAWGroupView *_groupView; // グループ状態表示用View
     NSArray *_trackers; // Tracker用配列
     IDPAWTrackerView *_dummyTrackerView; // ダミートラッカー用View
@@ -1271,58 +1276,151 @@ static NSInteger s_hierarchyTag = 0;
 
 - (void)firedGroundPan:(UIPanGestureRecognizer *)panGestureRecognizer
 {
-    CGPoint translation = [panGestureRecognizer translationInView:self.groundView];
-    CGPoint location = [panGestureRecognizer locationInView:self.groundView];
-    
-    //    NSLog(@"translation=%@",[NSValue valueWithCGPoint:translation] );
-    //    NSLog(@"location=%@",[NSValue valueWithCGPoint:location] );
-    
-    CGRect bandFrame = CGRectMake(_startPosition.x, _startPosition.y, translation.x, translation.y);
-    bandFrame = CGRectStandardize(bandFrame);
-    
-    switch (panGestureRecognizer.state) {
-        case UIGestureRecognizerStateBegan:
-        {
-            _startPosition = location;
-                // バンド用の開始位置を記憶
-        }
-            break;
-        case UIGestureRecognizerStateChanged:
-        {
-            // bandViewをgroundViewのsubviewとして設定
-            if( self.bandView.superview != self.groundView ){
-                [self.groundView addSubview:self.bandView];
-            }
-            self.bandView.frame = bandFrame;
-            [self.bandView setNeedsDisplay];
-        }
-            break;
-        case UIGestureRecognizerStateEnded:
-        {
-            CGRect testRect = self.bandView.frame;
-                // hitTest用のRectを用意
-            
-            [self.bandView removeFromSuperview];
-            _startPosition = CGPointZero;
+    if(  _selectToolMode == IDPAWAbstViewControllerSelectToolModeRectArea ){
+        CGPoint translation = [panGestureRecognizer translationInView:self.groundView];
+        CGPoint location = [panGestureRecognizer locationInView:self.groundView];
 
-            // 衝突判定
-            [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
-                return [objectView hittestWithRect:testRect];
-            }];
+        //    NSLog(@"translation=%@",[NSValue valueWithCGPoint:translation] );
+        //    NSLog(@"location=%@",[NSValue valueWithCGPoint:location] );
+
+        CGRect bandFrame = CGRectMake(_startPosition.x, _startPosition.y, translation.x, translation.y);
+        bandFrame = CGRectStandardize(bandFrame);
+
+        switch (panGestureRecognizer.state) {
+            case UIGestureRecognizerStateBegan:
+            {
+                _startPosition = location;
+                    // バンド用の開始位置を記憶
+            }
+                break;
+            case UIGestureRecognizerStateChanged:
+            {
+                // bandViewをgroundViewのsubviewとして設定
+                if( self.bandView.superview != self.groundView ){
+                    [self.groundView addSubview:self.bandView];
+                }
+                self.bandView.frame = bandFrame;
+                [self.bandView setNeedsDisplay];
+            }
+                break;
+            case UIGestureRecognizerStateEnded:
+            {
+                CGRect testRect = self.bandView.frame;
+                    // hitTest用のRectを用意
+
+                [self.bandView removeFromSuperview];
+                _startPosition = CGPointZero;
+
+                // 衝突判定
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                    return [objectView hittestWithRect:testRect];
+                }];
+            }
+                break;
+            case UIGestureRecognizerStateFailed:
+            case UIGestureRecognizerStateCancelled:
+            {
+                // Bandを除外のみ
+                [self.bandView removeFromSuperview];
+                _startPosition = CGPointZero;
+            }
+                break;
+            default:
+                break;
         }
-            break;
-        case UIGestureRecognizerStateFailed:
-        case UIGestureRecognizerStateCancelled:
-        {
-            // Bandを除外のみ
-            [self.bandView removeFromSuperview];
-            _startPosition = CGPointZero;
-        }
-            break;
-        default:
-            break;
     }
     
+    if(  _selectToolMode == IDPAWAbstViewControllerSelectToolModeLasso ){
+        switch (panGestureRecognizer.state) {
+            case UIGestureRecognizerStateBegan:
+            {
+                if( _pathLasso == nil ){
+                    _pathLasso = [UIBezierPath bezierPath];
+                }
+                
+                _counter = 0;
+                _points[0] = [panGestureRecognizer locationInView:self.groundView];
+            }
+                break;
+            case UIGestureRecognizerStateChanged:
+            {
+                CGPoint p = [panGestureRecognizer locationInView:self.groundView];
+                _counter++;
+                _points[_counter] = p;
+                if (_counter == 4)
+                {
+                    _points[3] = CGPointMake((_points[2].x + _points[4].x)/2.0, (_points[2].y + _points[4].y)/2.0);
+                    if( _firstPoint == nil ){
+                        [_pathLasso moveToPoint:_points[0]];
+                    }
+                    [_pathLasso addCurveToPoint:_points[3] controlPoint1:_points[1] controlPoint2:_points[2]]; // add a cubic Bezier from pt[0] to pt[3], with control points pt[1] and pt[2]
+                    
+                    // 最初の点を登録
+                    if( _firstPoint == nil ){
+                        _firstPoint = [NSValue valueWithCGPoint:_points[0]];
+                    }
+                    
+                    // bandViewをgroundViewのsubviewとして設定
+                    if( self.bandView.superview != self.groundView ){
+                        [self.groundView addSubview:self.bandView];
+                    }
+    #define IDP_AW_BAND_VIEW_PATH_MARGINE 1
+                    self.bandView.frame = CGRectUnion(CGRectOffset(_pathLasso.bounds,-IDP_AW_BAND_VIEW_PATH_MARGINE, -IDP_AW_BAND_VIEW_PATH_MARGINE),CGRectOffset(_pathLasso.bounds,IDP_AW_BAND_VIEW_PATH_MARGINE, IDP_AW_BAND_VIEW_PATH_MARGINE));
+                    
+                    UIBezierPath *bezierPath = [UIBezierPath bezierPathWithCGPath:_pathLasso.CGPath];
+                    [bezierPath applyTransform:CGAffineTransformMakeTranslation(-_pathLasso.bounds.origin.x + IDP_AW_BAND_VIEW_PATH_MARGINE,-_pathLasso.bounds.origin.y +IDP_AW_BAND_VIEW_PATH_MARGINE)];
+                    
+                    self.bandView.bezierPath = bezierPath;
+                    [self.bandView setNeedsDisplay];
+                    
+                    // replace points and get ready to handle the next segment
+                    _points[0] = _points[3];
+                    _points[1] = _points[4];
+                    _counter = 1;
+                }
+            }
+                break;
+            case UIGestureRecognizerStateEnded:
+            {
+                [_pathLasso closePath];
+                // パスを閉じる
+                
+                // 衝突判定
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                    return [objectView hittestWithPath:_pathLasso];
+                }];
+                
+                // bandViewをgroundViewのsubviewとして設定
+                if( self.bandView.superview != self.groundView ){
+                    [self.groundView addSubview:self.bandView];
+                }
+                self.bandView.bezierPath = nil;
+                    // pathをクリア
+                [self.bandView removeFromSuperview];
+                    // 画面から除外
+                
+                [_pathLasso removeAllPoints];
+                _firstPoint = nil;
+                _counter = 0;
+            }
+                break;
+            case UIGestureRecognizerStateCancelled:
+            case UIGestureRecognizerStateFailed:
+            {
+                self.bandView.bezierPath = nil;
+                    // pathをクリア
+                [self.bandView removeFromSuperview];
+                    // 画面から除外
+                
+                [_pathLasso removeAllPoints];
+                _firstPoint = nil;
+                _counter = 0;
+            }
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 - (void)firedGroundRotate:(UIRotationGestureRecognizer *)rotationGestureRecognizer

@@ -82,4 +82,10 @@
     return hittest;
 }
 
+- (BOOL) hittestWithPath:(UIBezierPath *)path
+{
+    BOOL hittest = [path containsPoint:self.center];
+    return hittest;
+}
+
 @end
