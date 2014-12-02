@@ -62,6 +62,7 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 
 // Grouped commands for object operations
 - (void) beginGroupCommand;
+- (void) pushGroupedComannd:(IDPAWAbstCommand *)command objectView:(IDPAWAbstRenderView *) objectView;
 - (void) endGroupCommand;
 
 // removeObject

@@ -475,6 +475,14 @@ static NSInteger s_hierarchyTag = 0;
     _groupCommands = [NSMutableArray array];
 }
 
+- (void) pushGroupedComannd:(IDPAWAbstCommand *)command objectView:(IDPAWAbstRenderView *) objectView
+{
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }
+}
+
 - (void) endGroupCommand
 {
     if( _groupCommands != nil ){
