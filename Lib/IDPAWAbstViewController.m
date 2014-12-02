@@ -86,6 +86,8 @@ static NSInteger s_hierarchyTag = 0;
     NSMutableArray *_commands;
     NSMutableArray *_groupCommandObjectViews;
     NSMutableArray *_groupCommands;
+    
+    NSNumber *_trackerMargin;
 }
 @property(readonly,nonatomic) IDPAWBandView *bandView;
 @property(readonly,nonatomic) IDPAWGroupFrameView *groupFrameView;
@@ -1191,6 +1193,21 @@ static NSInteger s_hierarchyTag = 0;
         [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
             // 4点(左上、右上、右下、左下)にトラッカーを合わせる
         
+        if(CGRectIntersectsRect([self.trackers[0] frame],[self.trackers[3] frame]) ){
+            _trackerMargin = @(10);
+            CGFloat trackerMargin = [_trackerMargin doubleValue];
+
+            [self.trackers[0] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
+            [self.trackers[1] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
+            [self.trackers[2] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
+            [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
+                // 4点(左上、右上、右下、左下)にトラッカーを合わせる
+        }else{
+            _trackerMargin = nil;
+        }
+        
+        
+        
         // groundViewのsubviewとしてTrackerを追加
         [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             IDPAWTrackerView *trackerView = obj;
@@ -1692,13 +1709,14 @@ static NSInteger s_hierarchyTag = 0;
                 [beziePath moveToPoint:[self.trackers[index] center]];
                 [beziePath addLineToPoint:[self.trackers[diagonalIndex] center]];
                     // Pathを使ってサイズを計算
-                
-                CGRect bounds = beziePath.bounds;
+
+                CGFloat trackerMargin = [_trackerMargin doubleValue];
+                CGRect bounds = CGRectIntersection( CGRectOffset(beziePath.bounds, -trackerMargin, -trackerMargin), CGRectOffset(beziePath.bounds, trackerMargin, trackerMargin) );
                     // Pathから領域を得る
-                
+
                 CGRect normalizedRect = AVMakeRectWithAspectRatioInsideRect(_originalGroupFrame.size, bounds );
                     // オリジナル矩形を元に同比率の矩形を得る
-
+                
                 CGPoint deltaPoint = CGPointMake(CGRectGetWidth(bounds) - CGRectGetWidth(normalizedRect)
                                                  ,CGRectGetHeight(bounds) - CGRectGetHeight(normalizedRect) );
                     // サイズの差分を計算
@@ -1709,7 +1727,7 @@ static NSInteger s_hierarchyTag = 0;
                 // トラッキング中位置の対角線を起点としてサイズ調整するように変更
                 switch (index) {
                     case 2:
-                        bounds =  CGRectOffset(bounds,0 ,0);
+                        bounds =  CGRectOffset(bounds,0,0);
                         break;
                     case 3:
                         bounds =  CGRectOffset(bounds,deltaPoint.x ,0);
@@ -1728,14 +1746,7 @@ static NSInteger s_hierarchyTag = 0;
                     _safetyBounds = bounds;
                         // 安全サイズを保存
                 }else if( panGestureRecognizer.state == UIGestureRecognizerStateChanged ){
-                    // 最小サイズまで小さくした場合はキャンセルする
-                    const CGFloat offset = (IDPAW_TRACKER_EDGE-1.0) * 0.5;
-                    
-                    const CGRect trackerFrameLeftTop = CGRectMake(CGRectGetMinX(normalizedRect) - offset,CGRectGetMinY(normalizedRect) - offset, IDPAW_TRACKER_EDGE, IDPAW_TRACKER_EDGE);
-                    
-                    const CGRect trackerFrameRightBottom = CGRectMake(CGRectGetMaxX(normalizedRect) - offset,CGRectGetMaxY(normalizedRect) - offset, IDPAW_TRACKER_EDGE, IDPAW_TRACKER_EDGE);
-                    
-                    if( CGRectIntersectsRect(trackerFrameLeftTop, trackerFrameRightBottom) ){
+                    if( bounds.size.width * bounds.size.height <= 2 ){
                         panGestureRecognizer.enabled = NO;
                         panGestureRecognizer.enabled = YES;
                         
@@ -1774,13 +1785,13 @@ static NSInteger s_hierarchyTag = 0;
                 }];
                 
                 // 各トラッキング点の位置を調整
-                [targetView != self.trackers[0] ? self.trackers[0] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
+                [targetView != self.trackers[0] ? self.trackers[0] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame)-trackerMargin,CGRectGetMinY(self.groupView.frame)-trackerMargin)];
                 
-                [targetView != self.trackers[1] ? self.trackers[1] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
+                [targetView != self.trackers[1] ? self.trackers[1] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame)+trackerMargin,CGRectGetMinY(self.groupView.frame)-trackerMargin)];
                 
-                [targetView != self.trackers[2] ? self.trackers[2] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
+                [targetView != self.trackers[2] ? self.trackers[2] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame)+trackerMargin,CGRectGetMaxY(self.groupView.frame)+trackerMargin)];
                 
-                [targetView != self.trackers[3] ? self.trackers[3] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
+                [targetView != self.trackers[3] ? self.trackers[3] : self.dummyTrackerView setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame)-trackerMargin,CGRectGetMaxY(self.groupView.frame)+trackerMargin)];
 
                 // 終了後にDummyTrackerをTrackerに置き換える
                 if( panGestureRecognizer.state == UIGestureRecognizerStateEnded || panGestureRecognizer.state == UIGestureRecognizerStateCancelled){
