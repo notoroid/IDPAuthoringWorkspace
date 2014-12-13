@@ -31,7 +31,7 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(firedDelete:)]
 //#warning UNDO disabled
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(firedUndo:)]
-                           
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Redo" style:UIBarButtonItemStylePlain target:self action:@selector(firedRedo:)]
                            ];
     self.navigationController.toolbarHidden = NO;
 }
@@ -61,6 +61,11 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
 - (void)firedUndo:(id)sender
 {
     [self popCommand];
+}
+
+- (void)firedRedo:(id)sender
+{
+    [self popRedoCommand];
 }
 
 - (void)didReceiveMemoryWarning {

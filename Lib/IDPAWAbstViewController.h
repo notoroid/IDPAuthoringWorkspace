@@ -98,5 +98,8 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 - (NSInteger) commandNumber;
 - (void) popFrontCommand;
 
+- (void) popRedoCommand;
+
+
 @end
 

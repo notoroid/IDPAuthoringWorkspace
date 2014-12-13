@@ -86,6 +86,7 @@ static NSInteger s_hierarchyTag = 0;
     NSMutableArray *_commands;
     NSMutableArray *_groupCommandObjectViews;
     NSMutableArray *_groupCommands;
+    NSMutableArray *_redoCommands;
     
     NSNumber *_trackerMargin;
 }
@@ -99,6 +100,7 @@ static NSInteger s_hierarchyTag = 0;
 //@property(readonly,nonatomic) DegreeInputView *degreeInputView;
 @property(readonly,nonatomic) NSMutableArray *hierarchies;
 @property (readonly,nonatomic) NSMutableArray *commands;
+@property (readonly,nonatomic) NSMutableArray *redoCommands;
 @end
 
 @implementation IDPAWAbstViewController
@@ -119,12 +121,20 @@ static NSInteger s_hierarchyTag = 0;
 - (NSMutableArray *)commands
 {
     if( _commands == nil ){
-//#warning command disabled
         _commands = [NSMutableArray array];
     }
     return _commands;
 }
-   
+
+- (NSMutableArray *)redoCommands
+{
+    if( _redoCommands == nil ){
+        _redoCommands = [NSMutableArray array];
+    }
+    return _redoCommands;
+}
+
+
 //- (IBAction)firedCloseDegree:(id)sender
 //{
 //    self.groupView.transform = CGAffineTransformMakeRotation(degreesToRadians(_sliderView.value) );
@@ -420,10 +430,15 @@ static NSInteger s_hierarchyTag = 0;
     
     IDPAWCommandPrepareBlock block = ^(IDPAWAbstCommand *command,NSArray *objectViews) {
         if( [command isKindOfClass:[IDPAWAddCommand class]] ){
-            IDPAWAbstRenderView *objectView = objectViews.count > 0 ? objectViews[0] : nil;
+            IDPAWAbstRenderView *addObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
-            [weakSelf addGestureWithView:objectView];
+            [weakSelf addGestureWithView:addObjectView];
                 // GestureRecognizer を付与
+            
+            // 衝突判定
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                return addObjectView == objectView ? YES : NO;
+            }];
         }else if( [command isKindOfClass:[IDPAWDeleteCommand class]] ){
             IDPAWAbstRenderView *objectView = objectViews.count > 0 ? objectViews[0] : nil;
             
@@ -963,7 +978,12 @@ static NSInteger s_hierarchyTag = 0;
         {
             IDPAWAbstCommand *command = [self.commands lastObject];
             [self.commands removeObject:self.commands.lastObject];
-            [command execute];
+            IDPAWAbstCommand *redoCommand = [command execute];
+            
+            if( redoCommand != nil ){
+                self.redoCommands[self.redoCommands.count] = redoCommand;
+                    // Redocommandを追加
+            }
         }
             break;
         case IDPAWAbstViewControllerCommandOptionNoEffect:
@@ -974,8 +994,18 @@ static NSInteger s_hierarchyTag = 0;
         default:
             break;
     }
+}
+
+- (void) popRedoCommand
+{
+    IDPAWAbstCommand *redoCommand = [self.redoCommands lastObject];
+    [self.redoCommands removeObject:self.redoCommands.lastObject];
+    IDPAWAbstCommand *command = [redoCommand execute];
     
-    
+    if( command != nil ){
+        self.commands[self.commands.count] = command;
+            // commandを追加
+    }
 }
 
 - (NSInteger) commandNumber
