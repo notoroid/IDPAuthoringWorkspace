@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "IDPAuthoringWorkspace"
-  s.version      = "0.0.19"
+  s.version      = "0.0.20"
   s.summary      = "IDPAuthoringWorkspace is middleware to realize in the iPhone / iPad on the authoring friendly user interface."
 
   s.description  = <<-DESC
