@@ -705,6 +705,37 @@ static NSInteger s_hierarchyTag = 0;
     
 }
 
+- (void) moveSelectedObjectWithOffset:(CGPoint)offset
+{
+    NSMutableArray *commands = [NSMutableArray array];
+    NSMutableArray *objectViews = [NSMutableArray array];
+    
+    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+        if( renderView.selected == YES ){
+            objectViews[objectViews.count] = renderView;
+            
+            commands[commands.count] = [IDPAWMoveCommand moveCommandWithView:renderView location:renderView.center block:[self commandBlock]];
+                    // コマンドを作成
+            
+            CGPoint location = CGPointMake(renderView.center.x + offset.x,renderView.center.y + offset.y);
+            
+            renderView.center = location;
+                // 変換
+        }
+    }];
+    
+    [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:commands objectViews:objectViews block:[self commandBlock]]];
+    // コマンド追加
+    
+    CGPoint location = CGPointMake(self.groupView.center.x + offset.x,self.groupView.center.y + offset.y);
+    self.groupView.center = location;
+    
+    [self.groupView setNeedsDisplay];
+    [self synchronizeTracker];
+    
+}
+
 - (void) clearSelection
 {
     // 既存の選択状態を無効化

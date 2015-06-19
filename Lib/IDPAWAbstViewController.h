@@ -71,6 +71,9 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 // rotate object
 - (void) rotateSelectedObjectWithRotation:(CGFloat)rotation;
 
+// move object
+- (void) moveSelectedObjectWithOffset:(CGPoint)offset;
+
 // clear selection
 - (void) clearSelection;
 
