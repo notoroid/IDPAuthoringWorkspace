@@ -89,7 +89,7 @@
                     
                     [bezier applyTransform:CGAffineTransformMakeTranslation(renderFrame.origin.x + deltaX , renderFrame.origin.y + deltaY)];
                     
-                    NSLog(@"bezier.bounds=%@",[NSValue valueWithCGRect:bezier.bounds] );
+//                    NSLog(@"bezier.bounds=%@",[NSValue valueWithCGRect:bezier.bounds] );
                     
                     _hittestBezier[_hittestBezier.count] = bezier;
                 }

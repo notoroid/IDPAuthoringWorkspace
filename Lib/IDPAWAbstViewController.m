@@ -1894,8 +1894,8 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                     CGFloat ratio = CGRectGetWidth(self.groupView.frame) / CGRectGetWidth(_originalGroupFrame);
                         // 比率を計算
                     
-                    NSLog(@"_originalGroupFrame=%@",[NSValue valueWithCGRect:_originalGroupFrame]);
-                    NSLog(@"self.groupView.frame=%@",[NSValue valueWithCGRect:self.groupView.frame]);
+//                    NSLog(@"_originalGroupFrame=%@",[NSValue valueWithCGRect:_originalGroupFrame]);
+//                    NSLog(@"self.groupView.frame=%@",[NSValue valueWithCGRect:self.groupView.frame]);
                     
 //                    CGPoint offset = CGPointMake(  CGRectGetMinX(_originalGroupFrame) - CGRectGetMinX(self.groupView.frame)
 //                                                 , CGRectGetMinY(_originalGroupFrame) - CGRectGetMinY(self.groupView.frame) );
@@ -1925,7 +1925,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                             delta = CGPointMake(delta.x  * ratio, delta.y  * ratio);
                                 // 差分を計算
                             
-                            NSLog(@"delta=%@",[NSValue valueWithCGPoint:renderView.center]);
+//                            NSLog(@"delta=%@",[NSValue valueWithCGPoint:renderView.center]);
                             
                             CGRect originalBounds = renderView.bounds;
                             
