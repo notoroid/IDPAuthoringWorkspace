@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 @interface IDPAWAbstViewController : UIViewController
 
 // GestureRecognizer
+@property(readonly,nonatomic) UIPanGestureRecognizer *authoringWorkspacePanGestureRecognizer;
 @property (readonly,nonatomic) UIRotationGestureRecognizer *rotateGestureRecognizer;
 
 // object collection
