@@ -1039,49 +1039,6 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
 }
 
-//- (void) viewWillLayoutSubviews
-//{
-//    [super viewDidLayoutSubviews];
-//    if( _initialized != YES ){
-//        _initialized = YES;
-//
-//        // レイアウトが決定してからテストオブジェクトを追加
-//
-//        NSArray *centers = @[  [NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame),CGRectGetMidY(self.groundView.frame))]
-//                             ,[NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame) + 20.0f ,CGRectGetMidY(self.groundView.frame) + 20.0f)]
-//                             ];
-//
-//        NSArray *bounds = @[ [NSValue valueWithCGRect:CGRectMake(0, 0, 120, 80)]
-//                            ,[NSValue valueWithCGRect:CGRectMake(0, 0, 120, 80)]
-//                            ];
-//        
-//        [centers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//            CGRect lineBounds = [bounds[idx] CGRectValue];;
-//            CGPoint center = [obj CGPointValue] /*CGPointMake(CGRectGetMidX(self.groundView.frame),CGRectGetMidY(self.groundView.frame))*/;
-//            
-//            IDPAWAbstRenderView *renderView = [[IDPAWAbstRenderView alloc] initWithFrame:lineBounds];
-//            renderView.center = center;
-//            renderView.backgroundColor = [UIColor clearColor]/*[UIColor lightGrayColor]*/;
-//            renderView.opaque = NO;
-//            renderView.clipsToBounds = NO;
-//            renderView.transform = CGAffineTransformMakeRotation(degreesToRadians(0.0f) );
-//            
-//            UIPanGestureRecognizer *panPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectPan:)];
-//            panPanGestureRecognizer.delegate = self;
-//            [renderView addGestureRecognizer:panPanGestureRecognizer];
-//            // ジェスチャを追加
-//            
-//            UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)];
-//            tapGestureRecognizer.delegate = self;
-//            [renderView addGestureRecognizer:tapGestureRecognizer];
-//            // ジェスチャを追加
-//            
-//            [/*_editView*/self.groundView addSubview:renderView];
-//            
-//        }];
-//    }
-//}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
