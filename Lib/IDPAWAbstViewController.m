@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
      IDPAWGestureTargetTypeNone
     ,IDPAWGestureTargetTypeGround
     ,IDPAWGestureTargetTypeGroup
+    ,IDPAWGestureTargetTypeRenderObject
 //    ,IDPAWGestureTargetTypeTrackerLeftTop
 //    ,IDPAWGestureTargetTypeTrackerRightTop
 //    ,IDPAWGestureTargetTypeTrackerRightBottom
@@ -69,6 +70,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     UIRotationGestureRecognizer *_groundRotateGesture;
  
     IDPAWGestureTargetType _gestureTargetType;
+    IDPAWAbstRenderView *_targetRenderView;
 //    UIPanGestureRecognizer *_groupPanGesture;
     
     CGPoint _startPosition; // バンドの開始位置
@@ -280,10 +282,6 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         _groupView.backgroundColor = [UIColor clearColor];
         _groupView.opaque = NO;
         
-//        _groupPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedGroupPan:)];
-//        _groupPanGesture.delegate = self;
-//        [_groupView addGestureRecognizer:_groupPanGesture];
-        
         // GroupFrameViewを生成しsubviewとして追加
         IDPAWGroupFrameView *groupFrameView = [[IDPAWGroupFrameView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(20.0, 20.0f)}];
         groupFrameView.backgroundColor = [UIColor clearColor];
@@ -367,11 +365,6 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         // Rotateジェスチャを追加
 }
 
-
-
-
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
 }
@@ -388,11 +381,6 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 
 - (void) addGestureWithView:(UIView *)view
 {
-    UIPanGestureRecognizer *panPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectPan:)];
-    panPanGestureRecognizer.delegate = self;
-    [view addGestureRecognizer:panPanGestureRecognizer];
-        // ジェスチャを追加
-    
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)];
     tapGestureRecognizer.delegate = self;
     [view addGestureRecognizer:tapGestureRecognizer];
@@ -1125,9 +1113,21 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             continued = YES;
         }
         
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( renderView != nil ){
+                CGPoint location = [_authoringWorkspacePanGestureRecognizer locationInView:renderView.superview];
+                if( CGRectContainsPoint(renderView.frame, location) ){
+                    _gestureTargetType = IDPAWGestureTargetTypeRenderObject;
+                    _targetRenderView = renderView;
+                }
+            }
+        }];
+//        _targetRenderView
     }
     
-    //
+
+    
     if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && ( [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] || [gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] ) ){
         IDPAWAbstRenderView *renderView = (IDPAWAbstRenderView *)gestureRecognizer.view;
         CGPoint location = [gestureRecognizer locationInView:renderView.superview];
@@ -1144,7 +1144,10 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             [self firedGroundPan:panGestureRecognizer];
             break;
         case IDPAWGestureTargetTypeGroup:
-            [self firedGroupPan:panGestureRecognizer];
+            [self firedGroupPan:panGestureRecognizer groupView:_groupView];
+            break;
+        case IDPAWGestureTargetTypeRenderObject:
+            [self firedObjectPan:panGestureRecognizer renderView:_targetRenderView];
             break;
         default:
             break;
@@ -1155,6 +1158,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
             _gestureTargetType = IDPAWGestureTargetTypeNone;
+            _targetRenderView = nil;
             break;
         default:
             break;
@@ -1615,7 +1619,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
 }
 
-- (void)firedGroupPan:(UIPanGestureRecognizer *)panGestureRecognizer
+- (void)firedGroupPan:(UIPanGestureRecognizer *)panGestureRecognizer groupView:(IDPAWGroupView *)groupView
 {
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
@@ -1624,7 +1628,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         {
 //            UIView *targetView = panGestureRecognizer.view;
 //                //targetを特定
-            UIView *targetView = _groupView;
+            UIView *targetView = groupView;
             
             
             // 回転を考慮して
@@ -1683,14 +1687,14 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
 }
 
-- (void)firedObjectPan:(UIPanGestureRecognizer *)panGestureRecognizer
+- (void)firedObjectPan:(UIPanGestureRecognizer *)panGestureRecognizer renderView:(IDPAWAbstRenderView *)renderView
 {
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged:
         case UIGestureRecognizerStateEnded:
         {
-            UIView *targetView = panGestureRecognizer.view;
+            UIView *targetView = /*panGestureRecognizer.view*/ renderView;
                 //targetを特定
 
             // 回転を考慮して
