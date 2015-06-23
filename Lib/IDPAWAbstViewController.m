@@ -35,10 +35,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     ,IDPAWGestureTargetTypeGround
     ,IDPAWGestureTargetTypeGroup
     ,IDPAWGestureTargetTypeRenderObject
-//    ,IDPAWGestureTargetTypeTrackerLeftTop
-//    ,IDPAWGestureTargetTypeTrackerRightTop
-//    ,IDPAWGestureTargetTypeTrackerRightBottom
-//    ,IDPAWGestureTargetTypeTrackerLeftBottom
+    ,IDPAWGestureTargetTypeTracker
 };
 
 
@@ -71,6 +68,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
  
     IDPAWGestureTargetType _gestureTargetType;
     IDPAWAbstRenderView *_targetRenderView;
+    IDPAWTrackerView *_targetTrackerView;
 //    UIPanGestureRecognizer *_groupPanGesture;
     
     CGPoint _startPosition; // バンドの開始位置
@@ -303,15 +301,12 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     if( _trackers == nil ){
         NSMutableArray *trackers = [NSMutableArray array];
         for( NSInteger i = 0;i < 4;i++){
-#define IDPAW_TRACKER_EDGE 23.0
+#define IDPAW_TRACKER_EDGE 33.0
             IDPAWTrackerView *trackerView= [[IDPAWTrackerView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(IDPAW_TRACKER_EDGE,IDPAW_TRACKER_EDGE)}];
             trackerView.backgroundColor = [UIColor clearColor];
             trackerView.opaque = NO;
-            trackerView.userInteractionEnabled = YES;
+            trackerView.userInteractionEnabled = NO;
             trackers[trackers.count] = trackerView;
-            
-            UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(firedTrackerPan:)];
-            [trackerView addGestureRecognizer:panGesture];
         }
         _trackers = [NSArray arrayWithArray:trackers];
     }
@@ -326,7 +321,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 - (IDPAWTrackerView *) dummyTrackerView
 {
     if( _dummyTrackerView == nil ){
-        _dummyTrackerView = [[IDPAWTrackerView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(23.0,23.0)}];
+        _dummyTrackerView = [[IDPAWTrackerView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(IDPAW_TRACKER_EDGE,IDPAW_TRACKER_EDGE)}];
         _dummyTrackerView.backgroundColor = [UIColor clearColor];
         _dummyTrackerView.opaque = NO;
         _dummyTrackerView.userInteractionEnabled = YES;
@@ -1046,7 +1041,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 //- (BOOL) gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    BOOL continued = YES;
+    __block BOOL continued = YES;
     
     if( gestureRecognizer == _groundRotateGesture ){
         if( self.groupView.superview == self.groundView ){
@@ -1070,22 +1065,41 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             continued = YES;
         }
         
+        if( _gestureTargetType != IDPAWGestureTargetTypeGroup ){
+            [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+                if( renderView != nil ){
+                    CGPoint location = [_authoringWorkspacePanGestureRecognizer locationInView:renderView.superview];
+                    if( CGRectContainsPoint(renderView.frame, location) ){
+                        _gestureTargetType = IDPAWGestureTargetTypeRenderObject;
+                        _targetRenderView = renderView;
+                        continued = YES;
+                    }
+                }
+            }];
+        }
+
+        
+        
         [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-            if( renderView != nil ){
-                CGPoint location = [_authoringWorkspacePanGestureRecognizer locationInView:renderView.superview];
-                if( CGRectContainsPoint(renderView.frame, location) ){
-                    _gestureTargetType = IDPAWGestureTargetTypeRenderObject;
-                    _targetRenderView = renderView;
+            IDPAWTrackerView *trackerView = [obj isKindOfClass:[IDPAWTrackerView class]] ? obj : nil;
+            if( trackerView != nil ){
+                CGPoint location = [_authoringWorkspacePanGestureRecognizer locationInView:trackerView.superview];
+                if( CGRectContainsPoint(trackerView.frame, location) ){
+                    _gestureTargetType = IDPAWGestureTargetTypeTracker;
+                    _targetTrackerView = trackerView;
+                    NSLog(@"Trackerに反応");
+                    continued = YES;
                 }
             }
         }];
-//        _targetRenderView
+        
+    }else if( [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] ){
+        NSLog(@"authoringWorkspacePanGestureRecognizer 以外のPan gesture");
+        
     }
     
-
-    
-    if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && ( [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] || [gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] ) ){
+    if( [gestureRecognizer.view isKindOfClass:[IDPAWAbstRenderView class]] && ( /*[gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] ||*/ [gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]] ) ){
         IDPAWAbstRenderView *renderView = (IDPAWAbstRenderView *)gestureRecognizer.view;
         CGPoint location = [gestureRecognizer locationInView:renderView.superview];
         continued = [renderView hittestWithLocation:location];
@@ -1106,6 +1120,9 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         case IDPAWGestureTargetTypeRenderObject:
             [self firedObjectPan:panGestureRecognizer renderView:_targetRenderView];
             break;
+        case IDPAWGestureTargetTypeTracker:
+            [self firedTrackerPan:panGestureRecognizer trackerView:_targetTrackerView];
+            break;
         default:
             break;
     }
@@ -1116,6 +1133,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         case UIGestureRecognizerStateCancelled:
             _gestureTargetType = IDPAWGestureTargetTypeNone;
             _targetRenderView = nil;
+            _targetTrackerView = nil;
             break;
         default:
             break;
@@ -1606,7 +1624,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             // 移動距離を計算
             
             targetView.center = movedPoint;
-            [panGestureRecognizer setTranslation:CGPointZero inView:targetView];
+            [panGestureRecognizer setTranslation:CGPointZero inView:groupView];
                 // ジェスチャをリセット
             
             // 終了後に要素に位置変更を適用
@@ -1668,7 +1686,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             
             CGPoint deltaPoint = CGPointMake(targetView.center.x - movedPoint.x,targetView.center.y - movedPoint.y);
             targetView.center = movedPoint;
-            [panGestureRecognizer setTranslation:CGPointZero inView:targetView];
+            [panGestureRecognizer setTranslation:CGPointZero inView:renderView];
                 // ジェスチャをリセット
             
             IDPAWAbstRenderView *renderView = [targetView isKindOfClass:[IDPAWAbstRenderView class]] ? (IDPAWAbstRenderView *)targetView : nil;
@@ -1735,7 +1753,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
 }
 
-- (void)firedTrackerPan:(UIPanGestureRecognizer *)panGestureRecognizer
+- (void)firedTrackerPan:(UIPanGestureRecognizer *)panGestureRecognizer trackerView:(IDPAWTrackerView *)trackerView;
 {
     switch (panGestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
@@ -1743,14 +1761,14 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         case UIGestureRecognizerStateEnded:
         case UIGestureRecognizerStateCancelled:
         {
-            UIView *targetView = panGestureRecognizer.view;
+            UIView *targetView = trackerView;
             
             CGPoint p = CGPointZero;
             /*CGPoint*/ p = [panGestureRecognizer translationInView:targetView];
             
             CGPoint movedPoint = CGPointMake(targetView.center.x + p.x, targetView.center.y + p.y);
             targetView.center = movedPoint;
-            [panGestureRecognizer setTranslation:CGPointZero inView:targetView];
+            [panGestureRecognizer setTranslation:CGPointZero inView:trackerView];
                 // トラッカーの位置を変更
             
             if( panGestureRecognizer.state == UIGestureRecognizerStateBegan || panGestureRecognizer.state == UIGestureRecognizerStateChanged || panGestureRecognizer.state == UIGestureRecognizerStateEnded){

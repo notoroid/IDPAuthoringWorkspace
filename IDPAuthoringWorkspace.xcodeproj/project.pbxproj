@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		870CDC881B385C8900D29357 /* IDPAWStyleKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 870CDC871B385C8900D29357 /* IDPAWStyleKit.m */; };
 		878D120619F8D12A00575B94 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D120519F8D12A00575B94 /* main.m */; };
 		878D120919F8D12A00575B94 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D120819F8D12A00575B94 /* AppDelegate.m */; };
 		878D120C19F8D12A00575B94 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 878D120B19F8D12A00575B94 /* ViewController.m */; };
@@ -42,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		870CDC861B385C8900D29357 /* IDPAWStyleKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWStyleKit.h; sourceTree = "<group>"; };
+		870CDC871B385C8900D29357 /* IDPAWStyleKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWStyleKit.m; sourceTree = "<group>"; };
 		878D120019F8D12A00575B94 /* IDPAuthoringWorkspace.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IDPAuthoringWorkspace.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		878D120419F8D12A00575B94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		878D120519F8D12A00575B94 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 		878D122919F8D18A00575B94 /* Lib */ = {
 			isa = PBXGroup;
 			children = (
+				870CDC861B385C8900D29357 /* IDPAWStyleKit.h */,
+				870CDC871B385C8900D29357 /* IDPAWStyleKit.m */,
 				878D122A19F8D18A00575B94 /* IDPAWAbstRenderView.h */,
 				878D122B19F8D18A00575B94 /* IDPAWAbstRenderView.m */,
 				879A772D1A21F6D0006E0C37 /* commands */,
@@ -310,6 +315,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				870CDC881B385C8900D29357 /* IDPAWStyleKit.m in Sources */,
 				879A77361A221C72006E0C37 /* IDPAWTransformCommand.m in Sources */,
 				878D123A19F8D18A00575B94 /* IDPAWGroupView.m in Sources */,
 				878D123E19F8D1D900575B94 /* EditObjectView.m in Sources */,
