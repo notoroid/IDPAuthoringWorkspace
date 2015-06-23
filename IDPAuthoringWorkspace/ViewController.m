@@ -12,10 +12,11 @@
 static double degreesToRadians(double degrees);
 static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
 
-@interface ViewController ()
+@interface ViewController () <UIScrollViewDelegate>
 {
     BOOL _initialized;
     __weak IBOutlet UIView *_groundView;
+    __weak IBOutlet UIScrollView *_scrollView;
 }
 @end
 
@@ -83,14 +84,26 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     return _groundView;
 }
 
+- (UIView *) viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return _groundView;
+}
+
+
 - (void) viewWillLayoutSubviews
 {
     [super viewDidLayoutSubviews];
     if( _initialized != YES ){
         _initialized = YES;
+
+        
+        // スクロールViewを設定
+        _scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.view.frame),CGRectGetHeight(self.view.frame));
+//        [_scrollView.panGestureRecognizer requireGestureRecognizerToFail:self.authoringWorkspacePanGestureRecognizer];
+        
+        
         
         // レイアウトが決定してからテストオブジェクトを追加
-        
         NSArray *centers = @[  [NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame),CGRectGetMidY(self.groundView.frame))]
                                ,[NSValue valueWithCGPoint:CGPointMake(CGRectGetMidX(self.groundView.frame) + 20.0f ,CGRectGetMidY(self.groundView.frame) + 20.0f)]
                                ];
