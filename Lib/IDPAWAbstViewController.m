@@ -352,7 +352,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 // GestureRecognizer を付与
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return addObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWDeleteCommand class]] ){
@@ -371,19 +371,19 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             IDPAWAbstRenderView *movedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return movedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWResizeCommand class]] ){
             IDPAWAbstRenderView *resizedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return resizedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWGroupedCommand class]] ){
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                 return [objectViews containsObject:objectView];
             }];
         }
@@ -1185,16 +1185,14 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 - (void) selectedObjectViewWithBlock:(idp_selected_objecv_view_block_t)block
 {
     __block CGRect rectGroup = CGRectNull;
-    __block BOOL stopSelected = NO;
-    
-    __block IDPAWAbstRenderView *stopedRenderView = nil;
+    NSMutableArray *selectedObjectViews = [NSMutableArray array];
     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         IDPAWAbstRenderView *objectView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         // subviewからRenderViewを用意
         
         if (objectView != nil ) {
             // 矩形衝突が認められた場合
-            if( block(objectView,&stopSelected) ){
+            if( block(objectView) ){
                 objectView.selected = YES;
                 [objectView setNeedsDisplay];
                 
@@ -1203,15 +1201,13 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 }else{
                     rectGroup =  CGRectUnion(rectGroup,objectView.frame);
                 }
+                
+                [selectedObjectViews addObject:objectView];
             }else{
                 objectView.selected = NO;
                 objectView.proxyRender = NO;
                 [objectView setNeedsDisplay];
-            }
-            
-            if( stopSelected == YES ){
-                stopedRenderView = objectView;
-                *stop = YES;
+                
             }
         }
     }];
@@ -1239,7 +1235,9 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         // グループをgroundViewのsubviewに設定
         [self.groundView addSubview:self.groupView];
         [self synchronizeTracker];
-        if( stopedRenderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
+        
+        IDPAWAbstRenderView *renderView = selectedObjectViews.count == 1 ? selectedObjectViews[0] : nil;
+        if( renderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
             [self removeTrackers];
                 // トラッカーを除外
         }
@@ -1297,10 +1295,10 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 _startPosition = CGPointZero;
 
                 // 衝突判定
-                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                     BOOL hittest = [objectView hittestWithRect:testRect];
                     if( hittest ){
-                        *stop = objectView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ? YES : NO;
+//                        *stop = objectView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ? YES : NO;
                     }
                     return hittest;
                 }];
@@ -1375,7 +1373,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 // パスを閉じる
                 
                 // 衝突判定
-                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
                     return [objectView hittestWithPath:_pathLasso];
                 }];
                 
