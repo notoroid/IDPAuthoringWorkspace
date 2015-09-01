@@ -762,41 +762,73 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             NSMutableArray *selecteObjectViews = [NSMutableArray array];
 
             NSArray *objectViews = self.objectViews;
+            
+            NSMutableArray *sortObjectViews = [NSMutableArray array];
+            
             [objectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                 IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-                if( renderView != nil && exclusionBlock(renderView) != YES ){
-                    s_hierarchyTag++;
-                        // タグを発行
-                    
-                    renderView.parentHierarchyTag = s_hierarchyTag;
-                        // タグを関連づけ
-                    
-                    NSArray *subViews = [renderView.subviews copy];
-                    [subViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                        IDPAWAbstRenderView *renderSubView = inclutionBlock(obj) ? obj : nil;
+                
+                if( renderView != nil ){
+                    // 順番を記憶
+                    if( exclusionBlock(renderView) != YES ){
+                        NSUInteger originalIndex = idx;
+                            // インデックスを保存
                         
-                        if( renderSubView != nil ){
-                            renderSubView.hierarchyTag = s_hierarchyTag;
+                        s_hierarchyTag++;
+                            // タグを発行
+                        
+                        renderView.parentHierarchyTag = s_hierarchyTag;
+                            // タグを関連づけ
+                        
+                        NSArray *subViews = [renderView.subviews copy];
+                        [subViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                            IDPAWAbstRenderView *renderSubView = inclutionBlock(obj) ? obj : nil;
                             
-                            CGPoint center = [self.groundView convertPoint:renderSubView.center fromView:renderView];
-                            
-                            [renderSubView removeFromSuperview];
-                            renderSubView.center = center;
-                            
-                            [self addObjectView:renderSubView];
-                            
-                            if( renderView.selected ){
-                                selecteObjectViews[selecteObjectViews.count] = renderSubView;
+                            if( renderSubView != nil ){
+                                renderSubView.hierarchyTag = s_hierarchyTag;
+                                
+                                CGPoint center = [self.groundView convertPoint:renderSubView.center fromView:renderView];
+                                
+                                [renderSubView removeFromSuperview];
+                                renderSubView.center = center;
+                                
+                                [self addObjectView:renderSubView];
+                                
+                                if( renderView.selected ){
+                                    selecteObjectViews[selecteObjectViews.count] = renderSubView;
+                                }
+                                
+                                renderSubView.proxyRender = NO;
+                                [renderSubView setNeedsDisplay];
+                                
+                                NSString *sortTag = [NSString stringWithFormat:@"%06ld%06ld",originalIndex,idx];
+                                [sortObjectViews addObject:@{@"renderView":renderSubView,@"sortTag":sortTag}];
                             }
-                            
-                            renderSubView.proxyRender = NO;
-                            [renderSubView setNeedsDisplay];
-                        }
-                    }];
-                    
-                    [self removeObjectView:renderView];
-                    editModeObject.viewsByHierarchyTag[@(s_hierarchyTag)] = renderView;
+                        }];
+                        
+                        [self removeObjectView:renderView];
+                        editModeObject.viewsByHierarchyTag[@(s_hierarchyTag)] = renderView;
+                    }else{
+                        NSString *sortTag = [NSString stringWithFormat:@"%06ld000000",idx];
+                        [sortObjectViews addObject:@{@"renderView":renderView,@"sortTag":sortTag}];
+                    }
                 }
+            }];
+            
+            // Viewの順序を更新
+            [sortObjectViews sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                NSDictionary *dict = obj1;
+                NSString *sortTag = dict[@"sortTag"];
+                NSDictionary *dict2 = obj2;
+                NSString *sortTag2 = dict2[@"sortTag"];
+                return [sortTag compare:sortTag2];
+            }];
+            
+            [sortObjectViews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                NSDictionary *dict = obj;
+                IDPAWAbstRenderView *renderView = dict[@"renderView"];
+
+                [renderView.superview bringSubviewToFront:renderView];
             }];
             
             while ([self commandNumber] > lastUndoNumber) {

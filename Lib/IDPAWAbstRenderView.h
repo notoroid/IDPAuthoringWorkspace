@@ -18,8 +18,12 @@ typedef NS_OPTIONS(NSInteger, IDPAWAbstRenderViewSupportToolType )
 
 @property(assign,nonatomic) BOOL selected;
 @property(assign,nonatomic) BOOL proxyRender;
+
+// for Edit Mode
 @property(assign,nonatomic) NSInteger parentHierarchyTag;
 @property(assign,nonatomic) NSInteger hierarchyTag;
+@property(assign,nonatomic) NSInteger sorTag;
+
 - (void) drawProxyRenderRect:(CGRect)rect;
 - (void) resizeSubViewWithBounds:(CGRect)bounds originalBounds:(CGRect)originalBounds;
 - (BOOL) hittestWithRect:(CGRect)rect;
