@@ -1007,6 +1007,9 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
 
     if( gestureRecognizer == _authoringWorkspacePanGestureRecognizer ){
+        // 一度ターゲット情報を初期化
+        _gestureTargetType = IDPAWGestureTargetTypeNone;
+        _targetRenderView = nil;
         
         [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
