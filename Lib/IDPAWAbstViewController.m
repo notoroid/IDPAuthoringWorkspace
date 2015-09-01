@@ -1314,11 +1314,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 
                 // 衝突判定
                 [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
-                    BOOL hittest = [objectView hittestWithRect:testRect];
-                    if( hittest ){
-//                        *stop = objectView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ? YES : NO;
-                    }
-                    return hittest;
+                    return [objectView hittestWithRect:testRect];
                 }];
             }
                 break;
