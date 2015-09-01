@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "EditObjectView.h"
+#import "NoTrackerObjectView.h"
 
 static double degreesToRadians(double degrees);
 static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
@@ -29,6 +30,7 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
         // 環境の構築
     
     self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(onAdd:)]
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Add(NoTracker)" style:UIBarButtonItemStylePlain target:self action:@selector(onAddNotracker:)]
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(onDelete:)]
 //#warning UNDO disabled
                            ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(onUndo:)]
@@ -39,7 +41,7 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
 
 - (void)onAdd:(id)sender
 {
-    EditObjectView *editObjectView = [[EditObjectView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(200, 180)}];
+    EditObjectView *editObjectView = [[EditObjectView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(150, 120)}];
     editObjectView.center = self.groundView.center;
     editObjectView.backgroundColor = [UIColor clearColor]/*[UIColor lightGrayColor]*/;
     editObjectView.opaque = NO;
@@ -52,6 +54,23 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     [self clearSelection];
     
     [self selectObjectViews:@[editObjectView]];
+}
+
+- (void)onAddNotracker:(id)sender
+{
+    NoTrackerObjectView *noTrackerObjectView = [[NoTrackerObjectView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(150, 120)}];
+    noTrackerObjectView.center = self.groundView.center;
+    noTrackerObjectView.backgroundColor = [UIColor clearColor]/*[UIColor lightGrayColor]*/;
+    noTrackerObjectView.opaque = NO;
+    noTrackerObjectView.clipsToBounds = NO;
+    noTrackerObjectView.transform = CGAffineTransformMakeRotation(degreesToRadians(0.0f) );
+    
+    [self addObjectView:noTrackerObjectView];
+    // オブジェクトを追加
+    
+    [self clearSelection];
+    
+    [self selectObjectViews:@[noTrackerObjectView]];
 }
 
 - (void)onDelete:(id)sender

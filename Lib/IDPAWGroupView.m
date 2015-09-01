@@ -116,28 +116,25 @@
     [self.superview.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if( obj != self ){
             IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            
             if( renderView.proxyRender ){
                 CGContextRef context = UIGraphicsGetCurrentContext();
                 CGContextSaveGState(context);
-
+                
                 const CGRect renderFrame = [self convertRect:renderView.frame fromView:renderView.superview];
                 const CGRect renderBounds = renderView.bounds;
                 
-//                if( CGAffineTransformEqualToTransform(renderView.transform, CGAffineTransformIdentity) ){
-//                    CGContextTranslateCTM(context,renderFrame.origin.x, renderFrame.origin.y);
-//                }else{
-                    UIBezierPath *bezier = [UIBezierPath bezierPathWithRect:renderBounds];
-                    [bezier applyTransform:renderView.transform];
-                    CGRect bezierBounds = bezier.bounds;
-                    
-                    CGFloat deltaX = -CGRectGetMinX(bezierBounds);
-                    CGFloat deltaY = -CGRectGetMinY(bezierBounds);
-                    CGContextTranslateCTM(context,renderFrame.origin.x + deltaX , renderFrame.origin.y + deltaY);
-                    
-                    CGAffineTransform transform = renderView.transform;
-                    CGContextConcatCTM(context,transform);
-//                }
-
+                UIBezierPath *bezier = [UIBezierPath bezierPathWithRect:renderBounds];
+                [bezier applyTransform:renderView.transform];
+                CGRect bezierBounds = bezier.bounds;
+                
+                CGFloat deltaX = -CGRectGetMinX(bezierBounds);
+                CGFloat deltaY = -CGRectGetMinY(bezierBounds);
+                CGContextTranslateCTM(context,renderFrame.origin.x + deltaX , renderFrame.origin.y + deltaY);
+                
+                CGAffineTransform transform = renderView.transform;
+                CGContextConcatCTM(context,transform);
+                
                 [renderView drawProxyRenderRect:(CGRect){CGPointZero,renderBounds.size}];
                 
                 CGContextRestoreGState(context);

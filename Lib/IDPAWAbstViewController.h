@@ -13,7 +13,7 @@
 @class IDPAWAbstCommand;
 
 typedef BOOL (^idp_hierarchy_compare_block_t)(IDPAWAbstRenderView *objectView);
-typedef BOOL (^idp_selected_objecv_view_block_t)(IDPAWAbstRenderView *objectView);
+typedef BOOL (^idp_selected_objecv_view_block_t)(IDPAWAbstRenderView *objectView,BOOL *stop);
 
 typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerEditMode )
 {

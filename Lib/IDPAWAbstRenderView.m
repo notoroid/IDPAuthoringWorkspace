@@ -88,4 +88,9 @@
     return hittest;
 }
 
+- (NSInteger) supportToolType
+{
+    return 0;
+}
+
 @end

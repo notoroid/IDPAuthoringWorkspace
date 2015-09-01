@@ -29,6 +29,7 @@
 		87C464C21A1580EF008C8DCD /* IDPAWDeleteCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464C11A1580EF008C8DCD /* IDPAWDeleteCommand.m */; };
 		87C464C51A15812A008C8DCD /* IDPAWAddCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */; };
 		87C464CB1A158E67008C8DCD /* IDPAWGroupedCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */; };
+		87D5194D1B954CC30003004D /* NoTrackerObjectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87D5194C1B954CC30003004D /* NoTrackerObjectView.m */; };
 		87DFDA901A21C83C00BEF8C6 /* IDPAWMoveCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,8 @@
 		87C464C41A15812A008C8DCD /* IDPAWAddCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWAddCommand.m; sourceTree = "<group>"; };
 		87C464C91A158E67008C8DCD /* IDPAWGroupedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWGroupedCommand.h; sourceTree = "<group>"; };
 		87C464CA1A158E67008C8DCD /* IDPAWGroupedCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWGroupedCommand.m; sourceTree = "<group>"; };
+		87D5194B1B954CC30003004D /* NoTrackerObjectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoTrackerObjectView.h; sourceTree = "<group>"; };
+		87D5194C1B954CC30003004D /* NoTrackerObjectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoTrackerObjectView.m; sourceTree = "<group>"; };
 		87DFDA8E1A21C83C00BEF8C6 /* IDPAWMoveCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDPAWMoveCommand.h; sourceTree = "<group>"; };
 		87DFDA8F1A21C83C00BEF8C6 /* IDPAWMoveCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDPAWMoveCommand.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -138,6 +141,8 @@
 				87BC0EFD19FF527500C7EB2A /* EditGroupView.m */,
 				878D123C19F8D1D900575B94 /* EditObjectView.h */,
 				878D123D19F8D1D900575B94 /* EditObjectView.m */,
+				87D5194B1B954CC30003004D /* NoTrackerObjectView.h */,
+				87D5194C1B954CC30003004D /* NoTrackerObjectView.m */,
 				878D120D19F8D12A00575B94 /* Main.storyboard */,
 				878D121019F8D12A00575B94 /* Images.xcassets */,
 				878D121219F8D12A00575B94 /* LaunchScreen.xib */,
@@ -334,6 +339,7 @@
 				878D123819F8D18A00575B94 /* IDPAWBandView.m in Sources */,
 				87C464C51A15812A008C8DCD /* IDPAWAddCommand.m in Sources */,
 				879A77301A220DBC006E0C37 /* IDPAWResizeCommand.m in Sources */,
+				87D5194D1B954CC30003004D /* NoTrackerObjectView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

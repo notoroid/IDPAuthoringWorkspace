@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_OPTIONS(NSInteger, IDPAWAbstRenderViewSupportToolType )
+{
+     IDPAWAbstRenderViewSupportToolTypeNoTracker = 0x1
+//    ,IDPAWAbstRenderViewSupportToolTypeNoRotation = 0x2
+};
+
 @interface IDPAWAbstRenderView : UIView
 
 @property(assign,nonatomic) BOOL selected;
@@ -20,6 +26,7 @@
 - (BOOL) hittestWithLocation:(CGPoint)location;
 - (BOOL) hittestWithPath:(UIBezierPath *)path;
 - (BOOL) isReplicableObject;
+- (NSInteger) supportToolType;
 @end
 
 

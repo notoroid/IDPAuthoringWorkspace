@@ -13,7 +13,6 @@
 #import "IDPAWTrackerView.h"
 @import AVFoundation;
 #import "IDPAWGroupFrameView.h"
-//#import "DegreeInputView.h"
 @import QuartzCore;
 #import "IDPAWAddCommand.h"
 #import "IDPAWDeleteCommand.h"
@@ -141,97 +140,6 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     }
     return _redoCommands;
 }
-
-
-//- (IBAction)firedCloseDegree:(id)sender
-//{
-//    self.groupView.transform = CGAffineTransformMakeRotation(degreesToRadians(_sliderView.value) );
-//    
-//    UIView *testView = [[UIView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(10,10)}];
-//    
-//    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-//        if( renderView.selected == YES ){
-//            // 回転を適用
-//            CGAffineTransform transform = CGAffineTransformConcat(renderView.transform, self.groupView.transform);
-//            renderView.transform = transform;
-//            
-//            // 位置を変更
-//            /*CGAffineTransform*/ transform = self.groupView.transform;
-//            self.groupView.transform = CGAffineTransformIdentity;
-//            
-//            
-//            testView.center = [self.groupView convertPoint:renderView.center fromView:self.groundView];
-//            [self.groupView addSubview:testView];
-//            
-//            NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
-//            
-//            self.groupView.transform = transform;
-//
-//            NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
-//
-//            renderView.center = [self.groundView convertPoint:testView.center fromView:self.groupView];
-//                // 変換
-//
-//            [testView removeFromSuperview];
-//        }
-//    }];
-//    
-//    self.groupView.transform = CGAffineTransformIdentity;
-//
-//    // サイズを正規化
-//    __block CGRect rectGroup = CGRectNull;
-//    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-//        if (renderView.selected == YES ) {
-//            if( CGRectIsNull(rectGroup) ){
-//                rectGroup =  renderView.frame;
-//            }else{
-//                rectGroup =  CGRectUnion(rectGroup,renderView.frame);
-//            }
-//        }
-//    }];
-//    
-//    self.groupView.frame = _originalGroupFrame = rectGroup;
-//    [self.groupView setNeedsDisplay];
-//    [self synchronizeTracker];
-//    
-//    
-//    
-//    [self.degreeInputView removeFromSuperview];
-//}
-
-//- (IBAction)firedChangeDegree:(id)sender
-//{
-//    if( sender == _sliderView ){
-//        NSLog(@"_sliderView.value=%@",@(_sliderView.value));
-//        
-//        self.groupView.transform = CGAffineTransformMakeRotation(degreesToRadians(_sliderView.value) );
-//
-//        UIBezierPath *bezierPath = [UIBezierPath bezierPathWithRect:self.groupView.bounds];
-//        [bezierPath applyTransform:CGAffineTransformMakeRotation(degreesToRadians(_sliderView.value) )];
-//        [bezierPath applyTransform:CGAffineTransformMakeTranslation(self.groupView.center.x - bezierPath.bounds.size.width * 0.5,self.groupView.center.y - bezierPath.bounds.size.height * 0.5)];
-//        
-//        [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//            [obj removeFromSuperview];
-//        }];
-//    }
-//    
-//}
-
-//- (DegreeInputView *) degreeInputView
-//{
-//    if( _degreeInputView == nil ){
-//        [[UINib nibWithNibName:@"DegreeInputView" bundle:nil] instantiateWithOwner:self options:nil];
-//        
-//        [_degreeInputView.layer setShadowRadius:4.0f];
-//        [_degreeInputView.layer setShadowOffset:CGSizeMake(1.5f, 2.3f)];
-//        [_degreeInputView.layer setShadowOpacity:0.7f];
-//        
-//    }
-//    return _degreeInputView;
-//}
-
 
 - (IBAction)firedDelete:(id)sender
 {
@@ -444,7 +352,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 // GestureRecognizer を付与
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
                 return addObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWDeleteCommand class]] ){
@@ -463,19 +371,19 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             IDPAWAbstRenderView *movedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
                 return movedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWResizeCommand class]] ){
             IDPAWAbstRenderView *resizedObjectView = objectViews.count > 0 ? objectViews[0] : nil;
             
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
                 return resizedObjectView == objectView ? YES : NO;
             }];
         }else if( [command isKindOfClass:[IDPAWGroupedCommand class]] ){
             // 衝突判定
-            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+            [weakSelf selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
                 return [objectViews containsObject:objectView];
             }];
         }
@@ -817,6 +725,14 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         // グループをgroundViewのsubviewに設定
         [self.groundView addSubview:self.groupView];
         [self synchronizeTracker];
+        
+        if( objectViews.count == 1 ){
+            IDPAWAbstRenderView *renderView = objectViews[0];
+            if( renderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
+                [self removeTrackers];
+                    // トラッカーを除外
+            }
+        }
         
         // 選択状態を有効化
         [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -1222,54 +1138,63 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 {
     // 親viewの状態を確認
     if( self.groupView.superview == self.groundView ){
-        [self.trackers[0] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
-        [self.trackers[1] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
-        [self.trackers[2] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
-        [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
-            // 4点(左上、右上、右下、左下)にトラッカーを合わせる
-        
-        if(CGRectIntersectsRect([self.trackers[0] frame],[self.trackers[3] frame]) ){
-            _trackerMargin = @(10);
-            CGFloat trackerMargin = [_trackerMargin doubleValue];
-
-            [self.trackers[0] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
-            [self.trackers[1] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
-            [self.trackers[2] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
-            [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
-                // 4点(左上、右上、右下、左下)にトラッカーを合わせる
+        if( _targetRenderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
+            [self removeTrackers];
         }else{
-            _trackerMargin = nil;
-        }
-        
-        
-        
-        // groundViewのsubviewとしてTrackerを追加
-        [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            IDPAWTrackerView *trackerView = obj;
-            if( trackerView.superview != self.groundView){
-                [self.groundView addSubview:trackerView];
+            [self.trackers[0] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
+            [self.trackers[1] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMinY(self.groupView.frame))];
+            [self.trackers[2] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
+            [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame),CGRectGetMaxY(self.groupView.frame))];
+            // 4点(左上、右上、右下、左下)にトラッカーを合わせる
+            
+            if(CGRectIntersectsRect([self.trackers[0] frame],[self.trackers[3] frame]) ){
+                _trackerMargin = @(10);
+                CGFloat trackerMargin = [_trackerMargin doubleValue];
+                
+                [self.trackers[0] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
+                [self.trackers[1] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMinY(self.groupView.frame) - trackerMargin)];
+                [self.trackers[2] setCenter:CGPointMake(CGRectGetMaxX(self.groupView.frame) + trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
+                [self.trackers[3] setCenter:CGPointMake(CGRectGetMinX(self.groupView.frame) - trackerMargin,CGRectGetMaxY(self.groupView.frame) + trackerMargin)];
+                // 4点(左上、右上、右下、左下)にトラッカーを合わせる
             }else{
-                [self.groundView bringSubviewToFront:trackerView];
+                _trackerMargin = nil;
             }
-        }];
-    
+            
+            // groundViewのsubviewとしてTrackerを追加
+            [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                IDPAWTrackerView *trackerView = obj;
+                if( trackerView.superview != self.groundView){
+                    [self.groundView addSubview:trackerView];
+                }else{
+                    [self.groundView bringSubviewToFront:trackerView];
+                }
+            }];
+        }
     }else{
-        [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [obj removeFromSuperview];
-        }];
+        [self removeTrackers];
     }
+}
+
+- (void) removeTrackers
+{
+    [self.trackers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [obj removeFromSuperview];
+    }];
 }
 
 - (void) selectedObjectViewWithBlock:(idp_selected_objecv_view_block_t)block
 {
     __block CGRect rectGroup = CGRectNull;
+    __block BOOL stopSelected = NO;
+    
+    __block IDPAWAbstRenderView *stopedRenderView = nil;
     [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         IDPAWAbstRenderView *objectView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
         // subviewからRenderViewを用意
         
         if (objectView != nil ) {
             // 矩形衝突が認められた場合
-            if( block(objectView) ){
+            if( block(objectView,&stopSelected) ){
                 objectView.selected = YES;
                 [objectView setNeedsDisplay];
                 
@@ -1278,11 +1203,15 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 }else{
                     rectGroup =  CGRectUnion(rectGroup,objectView.frame);
                 }
-                
             }else{
                 objectView.selected = NO;
                 objectView.proxyRender = NO;
                 [objectView setNeedsDisplay];
+            }
+            
+            if( stopSelected == YES ){
+                stopedRenderView = objectView;
+                *stop = YES;
             }
         }
     }];
@@ -1310,6 +1239,10 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         // グループをgroundViewのsubviewに設定
         [self.groundView addSubview:self.groupView];
         [self synchronizeTracker];
+        if( stopedRenderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
+            [self removeTrackers];
+                // トラッカーを除外
+        }
         
         // 選択状態を有効化
         [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -1364,8 +1297,12 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 _startPosition = CGPointZero;
 
                 // 衝突判定
-                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
-                    return [objectView hittestWithRect:testRect];
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
+                    BOOL hittest = [objectView hittestWithRect:testRect];
+                    if( hittest ){
+                        *stop = objectView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ? YES : NO;
+                    }
+                    return hittest;
                 }];
             }
                 break;
@@ -1438,7 +1375,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 // パスを閉じる
                 
                 // 衝突判定
-                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
+                [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView,BOOL *stop) {
                     return [objectView hittestWithPath:_pathLasso];
                 }];
                 
@@ -1554,6 +1491,11 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         [self.groupFrameView setNeedsDisplay];
             // グレープフレームの描画を更新する
         [self synchronizeTracker];
+
+        if( renderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoTracker ){
+            [self removeTrackers];
+                // トラッカーを除外
+        }
         
         CGPoint location = [tapGestureRecognizer locationInView:self.groupView];
         // メニューを表示
