@@ -28,16 +28,16 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     [self constructionAuthoringWorkspace];
         // 環境の構築
     
-    self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(firedAdd:)]
-                           ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(firedDelete:)]
+    self.toolbarItems = @[ [[UIBarButtonItem alloc] initWithTitle:@"Add" style:UIBarButtonItemStylePlain target:self action:@selector(onAdd:)]
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Delete" style:UIBarButtonItemStylePlain target:self action:@selector(onDelete:)]
 //#warning UNDO disabled
-                           ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(firedUndo:)]
-                           ,[[UIBarButtonItem alloc] initWithTitle:@"Redo" style:UIBarButtonItemStylePlain target:self action:@selector(firedRedo:)]
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Undo" style:UIBarButtonItemStylePlain target:self action:@selector(onUndo:)]
+                           ,[[UIBarButtonItem alloc] initWithTitle:@"Redo" style:UIBarButtonItemStylePlain target:self action:@selector(onRedo:)]
                            ];
     self.navigationController.toolbarHidden = NO;
 }
 
-- (void)firedAdd:(id)sender
+- (void)onAdd:(id)sender
 {
     EditObjectView *editObjectView = [[EditObjectView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(200, 180)}];
     editObjectView.center = self.groundView.center;
@@ -54,17 +54,17 @@ static double degreesToRadians(double degrees) {return degrees * M_PI / 180;}
     [self selectObjectViews:@[editObjectView]];
 }
 
-- (void)firedDelete:(id)sender
+- (void)onDelete:(id)sender
 {
     [self deleteSelectedObject];
 }
 
-- (void)firedUndo:(id)sender
+- (void)onUndo:(id)sender
 {
     [self popCommand];
 }
 
-- (void)firedRedo:(id)sender
+- (void)onRedo:(id)sender
 {
     [self popRedoCommand];
 }
