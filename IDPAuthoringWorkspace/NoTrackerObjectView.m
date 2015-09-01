@@ -41,7 +41,7 @@
 
 - (NSInteger) supportToolType
 {
-    return IDPAWAbstRenderViewSupportToolTypeNoTracker /*| IDPAWAbstRenderViewSupportToolTypeNoRotation*/;
+    return IDPAWAbstRenderViewSupportToolTypeNoTracker | IDPAWAbstRenderViewSupportToolTypeNoRotation;
 }
 
 @end

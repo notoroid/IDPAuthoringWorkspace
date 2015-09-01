@@ -986,6 +986,21 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     if( gestureRecognizer == _groundRotateGesture ){
         if( self.groupView.superview == self.groundView ){
             // 空実装
+            
+            NSMutableArray *selectedObjectViews = [NSMutableArray array];
+            [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+                if( renderView.selected ){
+                    [selectedObjectViews addObject:renderView];
+                }
+            }];
+
+            if( selectedObjectViews.count == 1 ){
+                IDPAWAbstRenderView *renderView = selectedObjectViews[0];
+                if( renderView.supportToolType & IDPAWAbstRenderViewSupportToolTypeNoRotation ){
+                    continued = NO;
+                }
+            }
         }else{
             continued = NO;
         }

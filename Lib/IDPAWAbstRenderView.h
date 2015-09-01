@@ -11,7 +11,7 @@
 typedef NS_OPTIONS(NSInteger, IDPAWAbstRenderViewSupportToolType )
 {
      IDPAWAbstRenderViewSupportToolTypeNoTracker = 0x1
-//    ,IDPAWAbstRenderViewSupportToolTypeNoRotation = 0x2
+    ,IDPAWAbstRenderViewSupportToolTypeNoRotation = 0x2
 };
 
 @interface IDPAWAbstRenderView : UIView
