@@ -172,6 +172,20 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     return _groupView.subviews.count > 0 ? _groupView.subviews[0] : nil;
 }
 
+
+/**
+ *  アーカイブからレジューム
+ *
+ *  @param objectView アーカイブしたオブジェクト
+ */
+- (void) resumeObjectFromArchivedData:(UIView *)view
+{
+    IDPAWAbstRenderView *renderView = [view isKindOfClass:[IDPAWAbstRenderView class]] ? (IDPAWAbstRenderView *)view : nil;
+    [self addGestureWithView:renderView];
+    
+}
+
+
 /**
  *  GroupViewのインスタンスを返す
  *
@@ -309,7 +323,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 
 - (void) addGestureWithView:(UIView *)view
 {
-    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)];
+    UITapGestureRecognizer *tapGestureRecognizer = view != nil ? [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(firedObjectTap:)] : nil;
     tapGestureRecognizer.delegate = self;
     [view addGestureRecognizer:tapGestureRecognizer];
         // ジェスチャを追加

@@ -91,13 +91,14 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 - (NSArray *) pasteObjectsWithLocation:(CGPoint)location;
 - (CGPoint) lastMenuLocation;
 
+// resume utilities
+- (void) resumeObjectFromArchivedData:(UIView *)view;
+
 @property(readonly,nonatomic) IDPAWGroupView *groupView;
 
-// edit mode utility methods
 - (void) pushEditMode:(IDPAWAbstViewControllerEditMode)editMode inclutionBlock:(idp_hierarchy_compare_block_t)inclutionBlock exclusionBlock:(idp_hierarchy_compare_block_t)exclusionBlock;
 - (void) popEditMode;
 
-// Undo/Redo utility methods
 - (void) pushCommand:(IDPAWAbstCommand *)command;
 - (void) popCommand;
 - (void) popCommandWithOption:(IDPAWAbstViewControllerCommandOption)option;
