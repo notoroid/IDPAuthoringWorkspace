@@ -27,7 +27,7 @@
     transformCommand.transform = transform;
     transformCommand.block = block;
     
-    return transformCommand;    return nil;
+    return transformCommand;
 }
 
 - (IDPAWAbstCommand *) execute

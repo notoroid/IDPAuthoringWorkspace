@@ -27,7 +27,7 @@
     resizeCommand.size = size;
     resizeCommand.block = block;
     
-    return resizeCommand;    return nil;
+    return resizeCommand;
 }
 
 - (IDPAWAbstCommand *) execute
