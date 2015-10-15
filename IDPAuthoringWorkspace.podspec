@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
 
   s.name         = "IDPAuthoringWorkspace"
-  s.version      = "0.0.22"
-  s.summary      = "IDPAuthoringWorkspace is middleware to realize in the iPhone / iPad on the authoring friendly user interface."
+  s.version      = "0.0.23"
+  s.summary      = "IDPAuthoringWorkspace is authoring for middleware for user interface on the iPhone / iPad. Selection of objects, scaling, it will support the rotation."
 
   s.description  = <<-DESC
-                   IDPAuthoringWorkspace is middleware to realize in the iPhone / iPad on the authoring friendly user interface. I will support the selection of objects, scaling and rotation. - IDPAuthoringWorkspace はオーサリング向けユーザインタフェイスをiPhone/iPad 上で実現するためのミドルウェアです。オブジェクトの選択、拡大縮小、回転をサポートします。 
+                    IDPAuthoringWorkspace is authoring for middleware for user interface on the iPhone / iPad. Selection of objects, scaling, it will support the rotation. - IDPAuthoringWorkspace はiPhone/iPad 上でオーサリング向けユーザインタフェイス用ミドルウェアです。オブジェクトの選択、拡大縮小、回転をサポートします。 
                    DESC
 
   s.homepage     = "https://github.com/notoroid/IDPAuthoringWorkspace"
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "7.0"
 
-  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.22" }
+  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.23" }
 
   s.source_files  = "Lib/**/*.{h,m}"
   s.public_header_files = "Lib/**/*.h"
