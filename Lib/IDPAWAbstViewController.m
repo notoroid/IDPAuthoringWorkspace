@@ -570,66 +570,71 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         // グループに合わせてトラッカーを無効化
 }
 
-- (void) rotateSelectedObjectWithRotation:(CGFloat)rotation
+- (void) rotateSelectedObjectWithRotations:(NSArray *)rotations
 {
-    self.groupView.transform = CGAffineTransformMakeRotation(rotation );
-    
-    UIView *testView = [[UIView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(10,10)}];
-    
     NSMutableArray *commands = [NSMutableArray array];
     NSMutableArray *objectViews = [NSMutableArray array];
     
-    
-    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-        if( renderView.selected == YES ){
-            objectViews[objectViews.count] = renderView;
-            commands[commands.count] = [IDPAWTransformCommand transformCommandWithView:renderView location:renderView.center transform:renderView.transform block:[self commandBlock]];
-                // コマンドを作成
-            
-            // 回転を適用
-            CGAffineTransform transform = CGAffineTransformConcat(renderView.transform, self.groupView.transform);
-            renderView.transform = transform;
-            
-            // 位置を変更
-            /*CGAffineTransform*/ transform = self.groupView.transform;
-            self.groupView.transform = CGAffineTransformIdentity;
-            
-            testView.center = [self.groupView convertPoint:renderView.center fromView:self.groundView];
-            [self.groupView addSubview:testView];
-            
-            NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
-            
-            self.groupView.transform = transform;
-            
-            NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
-            
-            renderView.center = [self.groundView convertPoint:testView.center fromView:self.groupView];
-            // 変換
-            
-            [testView removeFromSuperview];
-        }
+    [rotations enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        CGFloat rotation = [(NSNumber *)obj doubleValue];
+        self.groupView.transform = CGAffineTransformMakeRotation(rotation);
+        
+        UIView *testView = [[UIView alloc] initWithFrame:(CGRect){CGPointZero,CGSizeMake(10,10)}];
+        
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if( renderView.selected == YES ){
+                objectViews[objectViews.count] = renderView;
+                commands[commands.count] = [IDPAWTransformCommand transformCommandWithView:renderView location:renderView.center transform:renderView.transform block:[self commandBlock]];
+                    // コマンドを作成
+                
+                // 回転を適用
+                CGAffineTransform transform = CGAffineTransformConcat(renderView.transform, self.groupView.transform);
+                renderView.transform = transform;
+                
+                // 位置を変更
+                /*CGAffineTransform*/ transform = self.groupView.transform;
+                self.groupView.transform = CGAffineTransformIdentity;
+                
+                testView.center = [self.groupView convertPoint:renderView.center fromView:self.groundView];
+                [self.groupView addSubview:testView];
+                
+//                NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
+                
+                self.groupView.transform = transform;
+                
+//                NSLog(@"testView.center=%@",[NSValue valueWithCGPoint:[self.groundView convertPoint:testView.center fromView:self.groupView]]);
+                
+                renderView.center = [self.groundView convertPoint:testView.center fromView:self.groupView];
+                // 変換
+                
+                [testView removeFromSuperview];
+            }
+        }];
+        
+        
+        self.groupView.transform = CGAffineTransformIdentity;
+        
+        // サイズを正規化
+        __block CGRect rectGroup = CGRectNull;
+        [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
+            if (renderView.selected == YES ) {
+                if( CGRectIsNull(rectGroup) ){
+                    rectGroup =  renderView.frame;
+                }else{
+                    rectGroup =  CGRectUnion(rectGroup,renderView.frame);
+                }
+            }
+        }];
+        
+        self.groupView.frame = _originalGroupFrame = rectGroup;
     }];
+    
     
     [self pushCommand:[IDPAWGroupedCommand groupedCommandWithCommands:commands objectViews:objectViews block:[self commandBlock]]];
         // コマンド追加
     
-    self.groupView.transform = CGAffineTransformIdentity;
-    
-    // サイズを正規化
-    __block CGRect rectGroup = CGRectNull;
-    [self.groundView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
-        if (renderView.selected == YES ) {
-            if( CGRectIsNull(rectGroup) ){
-                rectGroup =  renderView.frame;
-            }else{
-                rectGroup =  CGRectUnion(rectGroup,renderView.frame);
-            }
-        }
-    }];
-    
-    self.groupView.frame = _originalGroupFrame = rectGroup;
     [self.groupView setNeedsDisplay];
     [self synchronizeTracker];
     
@@ -1495,7 +1500,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
             break;
         case UIGestureRecognizerStateEnded:
         {
-            [self rotateSelectedObjectWithRotation:rotationGestureRecognizer.rotation];
+            [self rotateSelectedObjectWithRotations:@[@(rotationGestureRecognizer.rotation)]];
                 // 回転を適用
             
             
