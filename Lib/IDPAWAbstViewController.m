@@ -1173,8 +1173,12 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         }];
         
         CGRect minRect = CGRectNull;
-        
         minRect.origin = location;
+        
+        if( CGRectGetHeight(view.bounds) < 61.0 ){
+            minRect.origin.y = CGRectGetMidY(view.bounds) - CGRectGetHeight(view.bounds) * 0.5 - 18.0;
+            minRect.origin.x = CGRectGetMidX(view.bounds);
+        }
         
         _menuPosition = [NSValue valueWithCGPoint:location];
             // 位置を記憶しておく
