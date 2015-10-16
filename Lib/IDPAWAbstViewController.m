@@ -1853,7 +1853,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                         IDPAWAbstRenderView *renderView = [obj isKindOfClass:[IDPAWAbstRenderView class]] ? obj : nil;
                         if( renderView.selected == YES ){
 
-                            commands[commands.count] = [IDPAWResizeCommand resizeCommandWithView:renderView location:renderView.center size:renderView.bounds.size block:nil];
+                            commands[commands.count] = [IDPAWResizeCommand resizeCommandWithView:renderView location:renderView.center size:renderView.bounds.size block:[self commandBlock]];
                                 // commandを作成
                             objectViews[objectViews.count] = renderView;
                             

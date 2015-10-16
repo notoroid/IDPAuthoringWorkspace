@@ -35,12 +35,17 @@
     CGPoint redoLocation = self.view.center;
     CGSize redoSize = self.view.bounds.size;
 
+    CGRect originalBounds = self.view.bounds;
     self.view.bounds = (CGRect){self.view.bounds.origin,self.size};
     self.view.center = self.location;
     
     if( self.block != nil ){
         self.block(self,@[self.view]);
     }
+
+    IDPAWAbstRenderView *renderView = [self.view isKindOfClass:[IDPAWAbstRenderView class]] ? self.view : nil;
+    [renderView resizeSubViewWithBounds:renderView.bounds originalBounds:originalBounds];
+        // サイズの再構築
     
     IDPAWAbstCommand *command = [IDPAWResizeCommand resizeCommandWithView:self.view location:redoLocation size:redoSize block:self.block];
     self.view = nil;
