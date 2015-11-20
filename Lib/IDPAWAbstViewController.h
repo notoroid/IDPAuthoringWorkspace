@@ -61,6 +61,9 @@ typedef NS_ENUM(NSInteger, IDPAWAbstViewControllerSelectToolMode )
 - (void) insertObjectView:(IDPAWAbstRenderView *) objectView aboveSubview:(UIView *)siblingSubview;
 - (void) removeObjectView:(IDPAWAbstRenderView *) objectView; // for objectview recycle
 
+// resize object
+- (void) resizeObjectView:(IDPAWAbstRenderView *)objectView withRatio:(CGFloat)ratio;
+
 // Grouped commands for object operations
 - (void) beginGroupCommand;
 - (void) pushGroupedComannd:(IDPAWAbstCommand *)command objectView:(IDPAWAbstRenderView *) objectView;

@@ -671,6 +671,29 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
     
 }
 
+- (void) resizeObjectView:(IDPAWAbstRenderView *)objectView withRatio:(CGFloat)ratio
+{
+    IDPAWResizeCommand *command = [IDPAWResizeCommand resizeCommandWithView:objectView location:objectView.center size:objectView.bounds.size block:[self commandBlock]];
+    if( _groupCommands != nil ){
+        _groupCommandObjectViews[_groupCommandObjectViews.count] = objectView;
+        _groupCommands[_groupCommands.count] = command;
+    }else{
+        [self pushCommand:command];
+        // commandを追加
+    }
+    
+    CGRect originalBounds = objectView.bounds;
+
+//    NSLog(@"center=%@",[NSValue valueWithCGPoint:objectView.center]);
+
+    objectView.bounds = (CGRect){objectView.bounds.origin,CGSizeMake(CGRectGetWidth(objectView.bounds) * ratio,CGRectGetHeight(objectView.bounds) * ratio)};
+
+//    NSLog(@"center=%@",[NSValue valueWithCGPoint:objectView.center]);
+
+    [objectView resizeSubViewWithBounds:objectView.bounds originalBounds:originalBounds];
+        // サイズの再構築
+}
+
 - (void) clearSelection
 {
     // 既存の選択状態を無効化
