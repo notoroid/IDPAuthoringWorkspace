@@ -1190,9 +1190,9 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
         
         NSNotificationCenter *dnc = [NSNotificationCenter defaultCenter];
         _menuObserver = [dnc addObserverForName:UIMenuControllerWillHideMenuNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-            [[NSNotificationCenter defaultCenter] removeObserver:_menuObserver];
-            _menuObserver = nil;
-            _menu = nil;
+            [[NSNotificationCenter defaultCenter] removeObserver:self->_menuObserver];
+            self->_menuObserver = nil;
+            self->_menu = nil;
         }];
         
         CGRect minRect = CGRectNull;
@@ -1466,7 +1466,7 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
                 
                 // 衝突判定
                 [self selectedObjectViewWithBlock:^BOOL(IDPAWAbstRenderView *objectView) {
-                    return [objectView hittestWithPath:_pathLasso];
+                    return [objectView hittestWithPath:self->_pathLasso];
                 }];
                 
                 // bandViewをgroundViewのsubviewとして設定
