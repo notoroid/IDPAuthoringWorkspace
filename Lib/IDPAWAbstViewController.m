@@ -176,15 +176,14 @@ typedef NS_ENUM(NSInteger, IDPAWGestureTargetType)
 /**
  *  アーカイブからレジューム
  *
- *  @param objectView アーカイブしたオブジェクト
+ *  @param objectView  アーカイブしていたオブジェクト
  */
-- (void) resumeObjectFromArchivedData:(UIView *)view
+- (void) resumeObjectFromArchivedData:(UIView *)objectView
 {
-    IDPAWAbstRenderView *renderView = [view isKindOfClass:[IDPAWAbstRenderView class]] ? (IDPAWAbstRenderView *)view : nil;
+    IDPAWAbstRenderView *renderView = [objectView isKindOfClass:[IDPAWAbstRenderView class]] ? (IDPAWAbstRenderView *)objectView : nil;
     [self addGestureWithView:renderView];
     
 }
-
 
 /**
  *  GroupViewのインスタンスを返す
