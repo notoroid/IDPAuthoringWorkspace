@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "IDPAuthoringWorkspace"
-  s.version      = "0.0.27"
+  s.version      = "0.0.28"
   s.summary      = "IDPAuthoringWorkspace is authoring for middleware for user interface on the iPhone / iPad. Selection of objects, scaling, it will support the rotation."
 
   s.description  = <<-DESC
@@ -18,8 +18,8 @@ Pod::Spec.new do |s|
   s.author             = { "notoroid" => "noto@irimasu.com" }
   s.social_media_url   = "http://twitter.com/notoroid"
 
-  s.ios.deployment_target = "7.0"
-  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.27" }
+  s.ios.deployment_target = "8.0"
+  s.source       = { :git => "https://github.com/notoroid/IDPAuthoringWorkspace.git", :tag => "v0.0.28" }
 
   s.source_files  = "Lib/**/*.{h,m}"
   s.public_header_files = "Lib/**/*.h"
